@@ -1,0 +1,330 @@
+import React from "react";
+import {
+  Search,
+  Phone,
+  Mail,
+  MapPin,
+} from "lucide-react";
+import Link from "next/link";
+export default function App() {
+  return (
+    <div className="min-h-screen bg-white">
+      {/* ========================================== */}
+      {/* 1. THANH ĐIỀU HƯỚNG (NAVIGATION)         */}
+      {/* ========================================== */}
+     
+
+
+<section className="w-full max-w-[1280px] mx-auto px-10 py-10 font-sans select-none text-black bg-white">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        
+        {/* ==================== PHẦN BÊN TRÁI (NỘI DUNG CHÍNH) ==================== */}
+        <div className="lg:col-span-8 space-y-12 pr-6">
+          
+          {/* 1. Header & Breadcrumb (Đã đổi tên thành EDUCORE + Icon nhà xanh) */}
+          <div>
+            <div className="flex items-center gap-2 text-xs font-bold text-gray-500 mb-4 uppercase tracking-wider">
+              <svg className="w-4 h-4 text-[#1d4ed8]" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+              </svg>
+              <span className="text-[#1d4ed8] font-black text-sm">EDUCORE</span>
+            </div>
+            <h1 className="text-[38px] font-black leading-tight">
+              Kiến Thức Nhập Môn IT
+            </h1>
+            <p className="text-gray-700 mt-4 text-[16px] leading-relaxed max-w-[750px]">
+              Để có cái nhìn tổng quan về ngành IT - Lập trình web các bạn nên xem các videos tại khóa này trước nhé.
+            </p>
+          </div>
+
+          {/* 2. Rating & Students */}
+          <div className="flex items-center gap-8 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="flex text-[#fadb14] text-lg">★★★★★</div>
+              <span className="font-bold text-[16px]">4.9</span>
+              <span className="text-gray-500">(530 đánh giá)</span>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
+              <span className="text-lg">👥</span>
+              <span className="font-bold text-gray-900 text-[16px]">139.679</span> 
+              <span className="text-gray-500">học viên</span>
+            </div>
+          </div>
+
+          {/* 3. Bạn sẽ học được gì? (Dấu check đổi sang màu Xanh Dương) */}
+          <div>
+            <h2 className="text-[24px] font-black mb-6">Bạn sẽ học được gì?</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5">
+              <div className="flex items-start gap-3 text-[15px] text-gray-800 leading-snug">
+                <svg className="w-5 h-5 text-[#1d4ed8] shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Các kiến thức cơ bản, nền móng của ngành IT</span>
+              </div>
+              <div className="flex items-start gap-3 text-[15px] text-gray-800 line-snug">
+                <svg className="w-5 h-5 text-[#1d4ed8] shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Các mô hình, kiến trúc cơ bản khi triển khai ứng dụng</span>
+              </div>
+              <div className="flex items-start gap-3 text-[15px] text-gray-800 line-snug">
+                <svg className="w-5 h-5 text-[#1d4ed8] shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Các khái niệm, thuật ngữ cốt lõi khi triển khai ứng dụng</span>
+              </div>
+              <div className="flex items-start gap-3 text-[15px] text-gray-800 line-snug">
+                <svg className="w-5 h-5 text-[#1d4ed8] shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Hiểu hơn về cách internet và máy vi tính hoạt động</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. Nội dung khóa học (Viết cứng giao diện có sẵn bài học xổ xuống) */}
+          <div>
+            <div className="flex justify-between items-end mb-5">
+              <div>
+                <h2 className="text-[24px] font-black">Nội dung khóa học</h2>
+                <p className="text-[14px] text-gray-600 mt-2">
+                  <span className="font-bold text-gray-950">4</span> chương • <span className="font-bold text-gray-950">12</span> bài học • <span className="font-bold text-gray-950">03 giờ 26 phút</span>
+                </p>
+              </div>
+              <span className="text-[#1d4ed8] text-[15px] font-bold cursor-pointer hover:underline">
+                Mở rộng tất cả
+              </span>
+            </div>
+
+            <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-[#f7f8fa]">
+              
+              {/* Chương 1 (Dấu trừ - Hiện sẵn bài học bên dưới) */}
+              <div className="border-b border-gray-200">
+                <div className="flex items-center justify-between px-6 py-4 hover:bg-gray-100 transition cursor-pointer select-none">
+                  <div className="flex items-center gap-4">
+                    <span className="text-[#1d4ed8] text-xl font-black w-4 text-center">−</span>
+                    <span className="text-[15px] font-bold text-gray-800">1. Khái niệm kỹ thuật cần biết</span>
+                  </div>
+                  <span className="text-[14px] text-gray-600">2 bài học</span>
+                </div>
+                
+                {/* Danh sách bài học con viết cứng hiển thị luôn */}
+                <div className="bg-white border-t border-gray-100 divide-y divide-gray-50">
+                  <div className="flex justify-between items-center px-12 py-3.5 hover:bg-slate-50 transition">
+                    <div className="flex items-center gap-3 text-[14.5px] text-gray-700">
+                      <span className="text-[#1d4ed8] text-[10px]">▶</span>
+                      <span><Link href="/user/courseVideo">1.1 Giới thiệu Tailwind CSS</Link></span>
+                    </div>
+                    <span className="text-sm text-gray-500">04:13</span>
+                  </div>
+                  <div className="flex justify-between items-center px-12 py-3.5 hover:bg-slate-50 transition">
+                    <div className="flex items-center gap-3 text-[14.5px] text-gray-700">
+                      <span className="text-[#1d4ed8] text-[10px]">▶</span>
+                      <span>1.3 Cài đặt Tailwind CSS</span>
+                    </div>
+                    <span className="text-sm text-gray-500">10:49</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Chương 2 (Dấu cộng) */}
+              <div className="border-b border-gray-200">
+                <div className="flex items-center justify-between px-6 py-4 hover:bg-gray-100 transition cursor-pointer select-none">
+                  <div className="flex items-center gap-4">
+                    <span className="text-[#1d4ed8] text-xl font-black w-4 text-center">+</span>
+                    <span className="text-[15px] font-bold text-gray-800">2. Môi trường, con người IT</span>
+                  </div>
+                  <span className="text-[14px] text-gray-600">3 bài học</span>
+                </div>
+              </div>
+
+              {/* Chương 3 (Dấu cộng) */}
+              <div className="border-b border-gray-200">
+                <div className="flex items-center justify-between px-6 py-4 hover:bg-gray-100 transition cursor-pointer select-none">
+                  <div className="flex items-center gap-4">
+                    <span className="text-[#1d4ed8] text-xl font-black w-4 text-center">+</span>
+                    <span className="text-[15px] font-bold text-gray-800">3. Phương pháp, định hướng</span>
+                  </div>
+                  <span className="text-[14px] text-gray-600">4 bài học</span>
+                </div>
+              </div>
+
+              {/* Chương 4 (Dấu cộng) */}
+              <div className="last:border-b-0">
+                <div className="flex items-center justify-between px-6 py-4 hover:bg-gray-100 transition cursor-pointer select-none">
+                  <div className="flex items-center gap-4">
+                    <span className="text-[#1d4ed8] text-xl font-black w-4 text-center">+</span>
+                    <span className="text-[15px] font-bold text-gray-800">4. Hoàn thành khóa học</span>
+                  </div>
+                  <span className="text-[14px] text-gray-600">3 bài học</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* 5. Khóa học liên quan (Ép cứng chia làm 3 cột ngang trên Desktop) */}
+          <div className="pt-6">
+            <h2 className="text-[24px] font-black mb-8">Khóa học liên quan</h2>
+            
+            <div className="grid grid-cols-3 gap-6">
+              {/* Card 1 */}
+              <div className="bg-white rounded-3xl border border-gray-200 shadow-md hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col justify-between">
+                <div className="h-32 bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center p-5 text-center">
+                   <p className="text-white text-[16px] font-black leading-tight drop-shadow-sm">Kiến Thức Nhập Môn IT</p>
+                </div>
+                <div className="p-4 space-y-3">
+                  <h4 className="font-bold text-[14.5px] text-gray-900 line-clamp-1">Kiến Thức Nhập Môn IT</h4>
+                  <p className="text-[#1d4ed8] font-black text-sm uppercase">Miễn phí</p>
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                    <div className="flex items-center gap-1">
+                      <span className="text-yellow-400 text-xs">★★★★★</span>
+                      <span className="text-xs font-bold text-gray-500">4.9</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-gray-400 text-[11px]">
+                       <span>👥</span> <span>139.683</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2 */}
+              <div className="bg-white rounded-3xl border border-gray-200 shadow-md hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col justify-between">
+                <div className="h-32 bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center p-5 text-center">
+                   <p className="text-white text-[16px] font-black leading-tight drop-shadow-sm">Lập trình C++ cơ bản, nâng cao</p>
+                </div>
+                <div className="p-4 space-y-3">
+                  <h4 className="font-bold text-[14.5px] text-gray-900 line-clamp-1">Lập trình C++ cơ bản, nâng cao</h4>
+                  <p className="text-[#1d4ed8] font-black text-sm uppercase">Miễn phí</p>
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                    <div className="flex items-center gap-1">
+                      <span className="text-yellow-400 text-xs">★★★★★</span>
+                      <span className="text-xs font-bold text-gray-500">4.9</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-gray-400 text-[11px]">
+                       <span>👥</span> <span>39.975</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3 */}
+              <div className="bg-white rounded-3xl border border-gray-200 shadow-md hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col justify-between">
+                <div className="h-32 bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center p-5 text-center">
+                   <p className="text-white text-[16px] font-black leading-tight drop-shadow-sm">HTML CSS từ Zero đến Hero</p>
+                </div>
+                <div className="p-4 space-y-3">
+                  <h4 className="font-bold text-[14.5px] text-gray-900 line-clamp-1">HTML CSS từ Zero đến Hero</h4>
+                  <p className="text-[#1d4ed8] font-black text-sm uppercase">Miễn phí</p>
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                    <div className="flex items-center gap-1">
+                      <span className="text-yellow-400 text-xs">★★★★★</span>
+                      <span className="text-xs font-bold text-gray-500">4.9</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-gray-400 text-[11px]">
+                       <span>👥</span> <span>219.846</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* ==================== PHẦN BÊN PHẢI (SIDEBAR ĐĂNG KÝ) ==================== */}
+        <div className="lg:col-span-4 sticky top-10 flex flex-col items-center">
+          <div className="w-full max-w-[340px] bg-white rounded-3xl p-5 border border-gray-100 shadow-lg flex flex-col items-center">
+            
+            {/* Video Box */}
+            <div className="relative w-full aspect-video rounded-2xl overflow-hidden group cursor-pointer mb-6 shadow-sm">
+              <div className="absolute inset-0 bg-gradient-to-tr from-[#2a0845] to-[#6441a5] opacity-90"></div>
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 select-none">
+                <h3 className="text-white/70 text-lg font-bold tracking-wide">Kiến Thức Nền Tảng</h3>
+                <p className="text-yellow-400 text-[11px] font-mono mt-0.5">Kiến thức nhập môn{`{}`}</p>
+                
+                <div className="mt-4 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition duration-300">
+                  <svg className="w-5 h-5 text-black ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+                <p className="text-white text-[13px] font-bold mt-4 tracking-wide">Xem giới thiệu khóa học</p>
+              </div>
+            </div>
+
+            {/* Chi phí & Nút Đăng ký (Đồng bộ Xanh Dương `#1d4ed8`) */}
+            <div className="w-full text-center space-y-4 px-2">
+              <p className="text-[13px] text-gray-500 font-bold uppercase tracking-widest">Chi phí khóa học</p>
+              <p className="text-[38px] font-black text-[#1d4ed8]">Miễn phí</p>
+
+              <button className="w-full bg-[#1d4ed8] hover:bg-[#1a3fb5] text-white font-black py-3.5 rounded-full text-[16px] shadow-md transition duration-200 uppercase tracking-wide">
+                Đăng ký học
+              </button>
+            </div>
+
+            {/* Danh sách thông số với TOÀN BỘ ICON SVG MÀU XANH DƯƠNG */}
+            <div className="w-full mt-7 space-y-4 text-[14px] text-gray-700 pl-4">
+              
+              {/* Trình độ */}
+              <div className="flex items-center gap-4">
+                <div className="shrink-0">
+                  <svg className="w-5 h-5 text-[#1d4ed8]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                  </svg>
+                </div>
+                <span>Trình độ cơ bản</span>
+              </div>
+
+              {/* Tổng số bài học */}
+              <div className="flex items-center gap-4">
+                <div className="shrink-0">
+                  <svg className="w-5 h-5 text-[#1d4ed8]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <span>Tổng số <span className="font-bold text-gray-900">12</span> bài học</span>
+              </div>
+
+              {/* Thời lượng */}
+              <div className="flex items-center gap-4">
+                <div className="shrink-0">
+                  <svg className="w-5 h-5 text-[#1d4ed8]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <span>Thời lượng <span className="font-bold text-gray-900">03 giờ 26 phút</span></span>
+              </div>
+
+              {/* Chứng chỉ */}
+              <div className="flex items-center gap-4">
+                <div className="shrink-0">
+                  <svg className="w-5 h-5 text-[#1d4ed8]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+                  </svg>
+                </div>
+                <span>Chứng chỉ hoàn thành</span>
+              </div>
+
+              {/* Học mọi lúc mọi nơi */}
+              <div className="flex items-center gap-4">
+                <div className="shrink-0">
+                  <svg className="w-5 h-5 text-[#1d4ed8]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <span>Học mọi lúc, mọi nơi</span>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+      
+    
+    </div>
+  );
+}
