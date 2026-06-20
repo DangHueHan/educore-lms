@@ -19,14 +19,53 @@ export class CourseService {
     });
   }
 
-  async findOne(id: string) {
-    const course = await this.prisma.course.findFirst({
-      where: { id, isDeleted: false },
-    });
+  // async findOne(id: string) {
+  //   const course = await this.prisma.course.findFirst({
+  //     where: { id, isDeleted: false },
+  //   });
 
-    if (!course) throw new NotFoundException('Course not found');
-    return course;
+  //   if (!course) throw new NotFoundException('Course not found');
+  //   return course;
+  // }
+  async findOne(id: string) {
+  const course = await this.prisma.course.findFirst({
+    where: {
+      id,
+      isDeleted: false,
+    },
+  include: {
+  lessons: {
+    where: {
+      isDeleted: false,
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  },
+
+  enrollments: {
+    include: {
+      user: true,
+    },
+  },
+
+  questions: {
+    where: {
+      isDeleted: false,
+    },
+    include: {
+      answers: true,
+    },
+  },
+}
+  });
+
+  if (!course) {
+    throw new NotFoundException('Course not found');
   }
+
+  return course;
+}
 
   async update(id: string, dto: CourseDto) {
     await this.findOne(id);

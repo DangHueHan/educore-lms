@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 
 const BASE_URL = "http://localhost:3001";
+const ITEMS_PER_PAGE = 5; // Cấu hình số lượng hàng hiển thị trên mỗi trang
 
 type Course = {
   id: string;
@@ -33,6 +34,13 @@ export default function QuestionPage() {
     explanation: "",
   });
 
+  // ==========================================
+  // STATE GIỮ NGUYÊN ĐỂ PHỤC VỤ UI KHÔNG BỊ LỖI
+  // ==========================================
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCourseId, setSelectedCourseId] = useState("");
+
   // ================= LOAD DATA =================
   useEffect(() => {
     fetchQuestions();
@@ -58,6 +66,16 @@ export default function QuestionPage() {
       console.error(err);
     }
   }
+
+  // ==========================================
+  // LOGIC XỬ LÝ PHÂN TRANG CLIENT-SIDE THUẦN TÚY (KHÔNG LỌC)
+  // ==========================================
+  const totalPages = Math.ceil(questions.length / ITEMS_PER_PAGE) || 1;
+  const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
+  
+  // Cắt trực tiếp trên mảng gốc ban đầu không qua filter dữ liệu
+  const currentData = questions.slice(indexOfFirstItem, indexOfLastItem);
 
   // ================= OPEN CREATE =================
   function openCreate() {
@@ -152,7 +170,7 @@ export default function QuestionPage() {
           </button>
         </div>
 
-        {/* SEARCH & FILTERS CONTROLS */}
+        {/* SEARCH & FILTERS CONTROLS (GIỮ NGUYÊN UI) */}
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-[#171B2A] border border-[#22283D] p-4 rounded-2xl">
           <div className="sm:col-span-8 relative">
             <span className="absolute inset-y-0 left-3.5 flex items-center text-zinc-500">
@@ -162,14 +180,25 @@ export default function QuestionPage() {
             </span>
             <input 
               type="text" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Tìm kiếm nội dung câu hỏi..." 
               className="w-full bg-[#121624] border border-[#2B3454] rounded-xl pl-10 pr-4 py-2 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-[#0066FF] transition"
             />
           </div>
 
           <div className="sm:col-span-4">
-            <select className="w-full bg-[#121624] border border-[#2B3454] rounded-xl px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-[#0066FF] transition cursor-pointer">
+            <select 
+              value={selectedCourseId}
+              onChange={(e) => setSelectedCourseId(e.target.value)}
+              className="w-full bg-[#121624] border border-[#2B3454] rounded-xl px-3 py-2 text-xs text-zinc-300 focus:outline-none focus:border-[#0066FF] transition cursor-pointer"
+            >
               <option value="">Tất cả Khóa học</option>
+              {courses.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.title}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -180,7 +209,6 @@ export default function QuestionPage() {
             <table className="w-full text-left border-collapse text-[13.5px] table-fixed">
               <thead>
                 <tr className="text-zinc-500 border-b border-[#22283D] font-bold">
-                  {/* Cố định tỷ lệ phần trăm khít 100% màn hình, đứng yên hoàn toàn */}
                   <th className="pb-4 px-3 w-[8%]">ID</th>
                   <th className="pb-4 px-3 w-[20%]">Khóa học</th>
                   <th className="pb-4 px-3 w-[32%]">Nội dung câu hỏi</th>
@@ -190,10 +218,11 @@ export default function QuestionPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1F263E]/40 text-zinc-300 font-medium">
-                {questions.map((q, index) => (
+                {/* MAP QUA DỮ LIỆU ĐÃ PHÂN TRANG THỰC TẾ currentData */}
+                {currentData.map((q, index) => (
                   <tr key={q.id} className="hover:bg-[#1E253A]/30 transition">
                     <td className="py-4 px-3 font-mono text-zinc-400">
-                      {index + 1}
+                      {indexOfFirstItem + index + 1}
                     </td>
                     <td className="py-4 px-3 text-zinc-300 font-semibold truncate" title={q.course?.title}>
                       {q.course?.title || "-"}
@@ -250,17 +279,45 @@ export default function QuestionPage() {
           {/* TABLE PAGINATION FOOTER */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#22283D]">
             <p className="text-xs text-zinc-500 font-medium">
-              Showing <span className="text-zinc-300 font-semibold">1-{questions.length}</span> of <span className="text-zinc-300 font-semibold">{questions.length}</span> items
+              Showing <span className="text-zinc-300 font-semibold">{questions.length === 0 ? 0 : indexOfFirstItem + 1}-{Math.min(indexOfLastItem, questions.length)}</span> of <span className="text-zinc-300 font-semibold">{questions.length}</span> items
             </p>
 
             <div className="flex items-center gap-1.5">
-              <button className="p-2 text-zinc-500 rounded-xl bg-[#121624] border border-[#22283D] opacity-40 cursor-not-allowed">
+              {/* Nút lùi trang */}
+              <button 
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="p-2 text-zinc-400 rounded-xl bg-[#121624] border border-[#22283D] transition hover:bg-[#1E253A] disabled:opacity-30 disabled:pointer-events-none"
+              >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                 </svg>
               </button>
-              <button className="w-8 h-8 rounded-xl text-xs font-bold bg-[#0066FF] text-white transition">1</button>
-              <button className="p-2 text-zinc-400 rounded-xl bg-[#121624] border border-[#22283D] opacity-40 cursor-not-allowed">
+
+              {/* Render danh sách số trang động */}
+              {Array.from({ length: totalPages }, (_, idx) => {
+                const pageNum = idx + 1;
+                return (
+                  <button 
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`w-8 h-8 rounded-xl text-xs font-bold transition ${
+                      currentPage === pageNum 
+                        ? "bg-[#0066FF] text-white" 
+                        : "bg-[#121624] border border-[#22283D] text-zinc-400 hover:bg-[#1C2237] hover:text-white"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+
+              {/* Nút tiến trang */}
+              <button 
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="p-2 text-zinc-400 rounded-xl bg-[#121624] border border-[#22283D] transition hover:bg-[#1E253A] disabled:opacity-30 disabled:pointer-events-none"
+              >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                 </svg>
@@ -296,6 +353,7 @@ export default function QuestionPage() {
                 <select 
                   value={form.courseId}
                   onChange={(e) => setForm({ ...form, courseId: e.target.value })}
+                  required
                   className="w-full bg-[#1C2237] border border-[#2B3454] rounded-xl px-3 py-2.5 text-sm text-zinc-300 focus:outline-none focus:border-[#0066FF] transition cursor-pointer"
                 >
                   <option value="">Chọn Course</option>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 const BASE_URL = "http://localhost:3001";
+const ITEMS_PER_PAGE = 5; // Số lượng hàng hiển thị trên mỗi trang
 
 type QuizResult = {
   id: string;
@@ -64,9 +65,12 @@ export default function QuizResultManagementPage() {
   const [openDetail, setOpenDetail] = useState(false);
   const [detail, setDetail] = useState<QuizResultDetail | null>(null);
 
-  /* STATE PHỤC VỤ TÌM KIẾM & BỘ LỌC GIAO DIỆN */
+  /* STATE PHỤC VỤ TÌM KIẾM & BỘ LỌC GIAO DIỆN TĨNH */
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+
+  /* STATE PHỤC VỤ PHÂN TRANG THỰC TẾ */
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchResults();
@@ -94,6 +98,16 @@ export default function QuizResultManagementPage() {
     }
   }
 
+  // =========================================================
+  // LOGIC XỬ LÝ PHÂN TRANG THUẦN TÚY TRÊN MẢNG GỐC RESULTS
+  // =========================================================
+  const totalPages = Math.ceil(results.length / ITEMS_PER_PAGE) || 1;
+  const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
+  
+  // Trích xuất dữ liệu của trang hiện tại từ mảng ban đầu
+  const currentData = results.slice(indexOfFirstItem, indexOfLastItem);
+
   return (
     <div className="p-6 bg-[#121624] min-h-screen text-white font-sans antialiased select-none overflow-y-auto custom-scrollbar">
       
@@ -107,7 +121,7 @@ export default function QuizResultManagementPage() {
         </p>
       </div>
 
-      {/* SEARCH & FILTERS CONTROLS */}
+      {/* SEARCH & FILTERS CONTROLS (GIỮ NGUYÊN GIAO DIỆN) */}
       <div className="bg-[#171B2A]/60 border border-[#22283D] p-4 rounded-2xl flex flex-col sm:flex-row gap-3 mb-4 items-center">
         <div className="relative flex-1 w-full">
           <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-zinc-500">
@@ -149,14 +163,14 @@ export default function QuizResultManagementPage() {
           <div className="w-[12%] text-center">Hành động</div>
         </div>
 
-        {/* BODY NỘI DUNG LẶP */}
+        {/* BODY NỘI DUNG LẶP - THAY THẾ results BẰNG currentData */}
         <div className="divide-y divide-[#1F263E]/40 text-[13.5px]">
-          {results.map((item, index) => (
+          {currentData.map((item, index) => (
             <div key={item.id} className="flex items-center py-3.5 hover:bg-[#1E253A]/30 transition px-2 rounded-xl">
               
               {/* CỘT STT */}
               <div className="w-[6%] text-zinc-400 font-mono pl-1">
-                {String(index + 1).padStart(2, "0")}
+                {String(indexOfFirstItem + index + 1).padStart(2, "0")}
               </div>
 
               {/* CỘT HỌC VIÊN */}
@@ -218,17 +232,47 @@ export default function QuizResultManagementPage() {
           )}
         </div>
 
-        {/* PAGINATION PANEL */}
+        {/* PAGINATION PANEL (ĐÃ KẾT NỐI VỚI LOGIC PHÂN TRANG THỰC TẾ) */}
         <div className="flex items-center justify-between pt-4 border-t border-[#22283D] text-xs text-zinc-400 px-1">
           <div>
-            Showing <span className="text-white font-medium">1-{results.length}</span> of <span className="text-white font-medium">{results.length}</span> items
+            Showing <span className="text-white font-medium">{results.length === 0 ? 0 : indexOfFirstItem + 1}-{Math.min(indexOfLastItem, results.length)}</span> of <span className="text-white font-medium">{results.length}</span> items
           </div>
           <div className="flex items-center gap-1.5 font-semibold">
-            <button className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] text-zinc-400 flex items-center justify-center hover:bg-[#1C2237] disabled:opacity-40" disabled>‹</button>
-            <button className="w-7 h-7 rounded-lg bg-[#0066FF] text-white flex items-center justify-center">1</button>
-            <button className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] flex items-center justify-center hover:bg-[#1C2237]">2</button>
-            <button className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] flex items-center justify-center hover:bg-[#1C2237]">3</button>
-            <button className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] text-zinc-400 flex items-center justify-center hover:bg-[#1C2237]">›</button>
+            {/* Nút lùi trang */}
+            <button 
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] text-zinc-400 flex items-center justify-center hover:bg-[#1C2237] disabled:opacity-30 disabled:pointer-events-none"
+            >
+              ‹
+            </button>
+            
+            {/* Render số trang động */}
+            {Array.from({ length: totalPages }, (_, idx) => {
+              const pageNum = idx + 1;
+              return (
+                <button 
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${
+                    currentPage === pageNum
+                      ? "bg-[#0066FF] text-white"
+                      : "border border-[#2B3454] bg-[#121624] text-zinc-400 hover:bg-[#1C2237]"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+
+            {/* Nút tiến trang */}
+            <button 
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] text-zinc-400 flex items-center justify-center hover:bg-[#1C2237] disabled:opacity-30 disabled:pointer-events-none"
+            >
+              ›
+            </button>
           </div>
         </div>
 

@@ -3,6 +3,15 @@ import React, { useEffect, useState } from "react";
 import { BannerParticles } from "../BannerParticles";
 import Link from "next/link";
 
+const BASE_URL = "http://localhost:3001";
+
+type Course = {
+  id: string;
+  title: string;
+  description?: string;
+  thumbnail?: string;
+};
+
 
 
 const LINES = ["Vững kỹ năng.", "Chắc tương lai."];
@@ -55,6 +64,27 @@ function useTypewriter(lines: string[], speed = 55, pauseMs = 820) {
   return { displayed, done };
 }
 export default function App() {
+
+const [courses, setCourses] = useState<Course[]>([]);
+
+useEffect(() => {
+  fetchCourses();
+}, []);
+
+async function fetchCourses() {
+  const res = await fetch(`${BASE_URL}/courses`);
+  const data = await res.json();
+
+  setCourses(Array.isArray(data) ? data : []);
+}
+const [showAll, setShowAll] = useState(false);
+const visibleCourses = showAll
+  ? courses
+  : courses.slice(0, 4);
+
+const remainingCourses = courses.length - 4;
+
+
    const { displayed, done } = useTypewriter(LINES);
   return (
     <div className="min-h-screen bg-white">
@@ -202,24 +232,45 @@ export default function App() {
 {/* 1. SECTION: DÀNH CHO BẠN */}
 {/* ========================= */}
 <section className="w-full max-w-[1300px] mx-auto px-6 md:px-12 py-16">
-  <h2 className="text-3xl font-bold text-slate-900 mb-10">Dành cho bạn</h2>
- 
+  <h2 className="text-3xl font-bold text-slate-900 mb-10">
+    Dành cho bạn
+  </h2>
+
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    {/* Card 1 - Tailwind CSS */}
-    <div className="bg-white border border-gray-100 rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300 group">
-      <div className="relative h-52">
-        <img
-          src="https://files.f8.edu.vn/f8-prod/courses/78/6a13907bcf8a1.png"
-          alt="Tailwind CSS"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
-      </div>
-      <div className="p-6">
-        <div className="font-semibold text-xl"><Link href="/user/courseDetail">Tailwind CSS</Link></div>
-        <span className="text-blue-600 font-bold text-xl block mt-4">Miễn phí</span>
-       
-        <div className="flex items-center gap-2 mt-5 text-sm text-gray-500">
+    
+    {visibleCourses.map((course) => (
+      <div
+        key={course.id}
+        className="bg-white border border-gray-100 rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300 group"
+      >
+        <div className="relative h-52">
+          <img
+            src={
+              course.thumbnail ||
+              "https://placehold.co/600x400?text=EduCore"
+            }
+            alt={course.title}
+            className="w-full h-full object-cover"
+          />
+
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+        </div>
+
+        <div className="p-6">
+          <div className="font-semibold text-xl">
+            <Link href={`/user/courseDetail/${course.id}`}>
+              {course.title}
+            </Link>
+          </div>
+
+          <p className="text-gray-500 text-sm mt-2 line-clamp-2 min-h-[40px]">
+            {course.description}
+          </p>
+
+          <span className="text-blue-600 font-bold text-xl block mt-4">
+            Miễn phí
+          </span>
+<div className="flex items-center gap-2 mt-5 text-sm text-gray-500">
           <span className="text-xl">☆☆☆☆☆</span>
           <span>Chưa có đánh giá</span>
         </div>
@@ -227,17 +278,22 @@ export default function App() {
           <div>👥 210</div>
           <div>🕒 2h21p</div>
         </div>
+        </div>
       </div>
-    </div>
+    ))}
   </div>
 
+{!showAll && remainingCourses > 0 && (
   <div className="text-center mt-12">
-    <button className="px-8 py-3.5 rounded-full border-2 border-blue-600 text-blue-600 font-semibold hover:bg-blue-600 hover:text-white transition-all">
-      Xem thêm 8 khóa học
+    <button
+      onClick={() => setShowAll(true)}
+      className="px-8 py-3.5 rounded-full border-2 border-blue-600 text-blue-600 font-semibold hover:bg-blue-600 hover:text-white transition-all"
+    >
+      Xem thêm {remainingCourses} khóa học
     </button>
   </div>
+)}
 </section>
-
 {/* ============================= */}
 {/* 2. SECTION: KHÓA HỌC FREE */}
 {/* ============================= */}

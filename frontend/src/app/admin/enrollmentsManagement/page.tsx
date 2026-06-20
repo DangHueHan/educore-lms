@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 const BASE_URL = "http://localhost:3001";
+const ITEMS_PER_PAGE = 5; // Cấu hình số lượng dòng hiển thị trên mỗi trang
 
 type Enrollment = {
   id: string;
@@ -17,6 +18,9 @@ export default function EnrollmentPage() {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCourse, setFilterCourse] = useState("all");
+  
+  /* STATE QUẢN LÝ TRANG HIỆN TẠI */
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchEnrollments();
@@ -32,10 +36,20 @@ export default function EnrollmentPage() {
     }
   }
 
+  // =========================================================
+  // LOGIC XỬ LÝ PHÂN TRANG CLIENT-SIDE THUẦN TÚY (KHÔNG LỌC)
+  // =========================================================
+  const totalPages = Math.ceil(enrollments.length / ITEMS_PER_PAGE) || 1;
+  const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
+  
+  // Cắt trực tiếp từ mảng gốc enrollments ban đầu
+  const currentData = enrollments.slice(indexOfFirstItem, indexOfLastItem);
+
   return (
     <div className="p-6 bg-[#121624] min-h-screen text-white font-sans antialiased select-none overflow-y-auto custom-scrollbar">
       
-      {/* HEADER SECTION (ĐÃ XÓA NÚT GHI DANH) */}
+      {/* HEADER SECTION */}
       <div className="mb-6">
         <h1 className="text-xl font-bold text-white flex items-center gap-2">
            Quản lý Đăng ký Học
@@ -45,7 +59,7 @@ export default function EnrollmentPage() {
         </p>
       </div>
 
-      {/* SEARCH & FILTERS PANEL (ICON SVG CHUẨN XỊN) */}
+      {/* SEARCH & FILTERS PANEL (GIỮ NGUYÊN UI) */}
       <div className="bg-[#171B2A]/60 border border-[#22283D] p-4 rounded-2xl flex flex-col sm:flex-row gap-3 mb-4 items-center">
         <div className="relative flex-1 w-full">
           <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-zinc-500">
@@ -84,9 +98,12 @@ export default function EnrollmentPage() {
         </div>
 
         <div className="divide-y divide-[#1F263E]/40 text-[13.5px]">
-          {enrollments.map((item, index) => (
+          {/* MAP QUA DỮ LIỆU ĐÃ PHÂN TRANG currentData */}
+          {currentData.map((item, index) => (
             <div key={item.id} className="flex items-center py-3.5 hover:bg-[#1E253A]/30 transition px-2 rounded-xl">
-              <div className="w-[8%] text-zinc-400 font-mono pl-1">{String(index + 1).padStart(2, "0")}</div>
+              <div className="w-[8%] text-zinc-400 font-mono pl-1">
+                {String(indexOfFirstItem + index + 1).padStart(2, "0")}
+              </div>
               <div className="w-[30%] pr-3 flex flex-col justify-center min-w-0">
                 <span className="text-white font-semibold truncate" title={item.user?.displayName || "—"}>{item.user?.displayName || "—"}</span>
                 <span className="text-xs text-zinc-400 truncate mt-0.5 font-medium" title={item.user?.email}>{item.user?.email}</span>
@@ -96,20 +113,52 @@ export default function EnrollmentPage() {
               <div className="w-[17%] text-zinc-400 text-xs font-mono pr-1 truncate">{item.updatedAt ? new Date(item.updatedAt).toLocaleDateString() : "-"}</div>
             </div>
           ))}
-          {enrollments.length === 0 && <div className="py-12 text-center text-zinc-500 font-medium text-xs">📭 Không tìm thấy dữ liệu phù hợp.</div>}
+          {enrollments.length === 0 && (
+            <div className="py-12 text-center text-zinc-500 font-medium text-xs">📭 Không có dữ liệu đăng ký học.</div>
+          )}
         </div>
 
         {/* PAGINATION PANEL */}
         <div className="flex items-center justify-between pt-4 border-t border-[#22283D] text-xs text-zinc-400 px-1">
           <div>
-            Showing <span className="text-white font-medium">1-{enrollments.length}</span> of <span className="text-white font-medium">{enrollments.length}</span> items
+            Showing <span className="text-white font-medium">{enrollments.length === 0 ? 0 : indexOfFirstItem + 1}-{Math.min(indexOfLastItem, enrollments.length)}</span> of <span className="text-white font-medium">{enrollments.length}</span> items
           </div>
           <div className="flex items-center gap-1.5 font-semibold">
-            <button className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] text-zinc-400 flex items-center justify-center hover:bg-[#1C2237] disabled:opacity-40" disabled>‹</button>
-            <button className="w-7 h-7 rounded-lg bg-[#0066FF] text-white flex items-center justify-center">1</button>
-            <button className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] flex items-center justify-center hover:bg-[#1C2237]">2</button>
-            <button className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] flex items-center justify-center hover:bg-[#1C2237]">3</button>
-            <button className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] text-zinc-400 flex items-center justify-center hover:bg-[#1C2237]">›</button>
+            {/* Nút lùi 1 trang */}
+            <button 
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] text-zinc-400 flex items-center justify-center hover:bg-[#1C2237] hover:text-white disabled:opacity-30 disabled:pointer-events-none transition"
+            >
+              ‹
+            </button>
+
+            {/* Render động danh sách các nút số trang */}
+            {Array.from({ length: totalPages }, (_, idx) => {
+              const pageNum = idx + 1;
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${
+                    currentPage === pageNum
+                      ? "bg-[#0066FF] text-white"
+                      : "border border-[#2B3454] bg-[#121624] text-zinc-400 hover:bg-[#1C2237] hover:text-white"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+
+            {/* Nút tiến 1 trang */}
+            <button 
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] text-zinc-400 flex items-center justify-center hover:bg-[#1C2237] hover:text-white disabled:opacity-30 disabled:pointer-events-none transition"
+            >
+              ›
+            </button>
           </div>
         </div>
 

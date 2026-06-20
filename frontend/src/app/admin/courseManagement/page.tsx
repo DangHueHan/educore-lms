@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 
 const BASE_URL = "http://localhost:3001";
+const ITEMS_PER_PAGE = 5; // Bạn có thể tùy chỉnh số lượng hiển thị mỗi trang ở đây
 
 type Course = {
   id: string;
@@ -32,6 +33,11 @@ export default function DashboardPage() {
   const [filterRange, setFilterRange] = useState("all");
 
   // =========================
+  // STATE THÊM MỚI: PHÂN TRANG
+  // =========================
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // =========================
   // PREVIEW FILE (KEEP LOGIC)
   // =========================
   useEffect(() => {
@@ -59,11 +65,20 @@ export default function DashboardPage() {
       const data = await res.json();
 
       setTableData(Array.isArray(data) ? data : []);
+      setCurrentPage(1); // Reset về trang 1 mỗi lần lấy dữ liệu mới
     } catch (err) {
       console.error(err);
       setTableData([]);
     }
   }
+
+  // =========================
+  // LOGIC PHÂN TRANG (TỰ ĐỘNG TÍNH TOÁN)
+  // =========================
+  const totalPages = Math.ceil(tableData.length / ITEMS_PER_PAGE) || 1;
+  const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
+  const currentData = tableData.slice(indexOfFirstItem, indexOfLastItem);
 
   // =========================
   // RESET FORM (KEEP LOGIC)
@@ -207,7 +222,7 @@ export default function DashboardPage() {
              Quản lý Khóa học
           </h1>
           <p className="text-xs text-zinc-400 mt-0.5">
-         Xem, khởi tạo và cập nhật thông tin tổng quan các chương trình đào tạo trên hệ thống Educore
+          Xem, khởi tạo và cập nhật thông tin tổng quan các chương trình đào tạo trên hệ thống Educore
           </p>
         </div>
 
@@ -265,7 +280,8 @@ export default function DashboardPage() {
             </thead>
 
             <tbody className="divide-y divide-[#1F263E]/40 text-[13.5px]">
-              {tableData.map((row) => (
+              {/* THAY THẾ tableData BẰNG currentData ĐỂ PHÂN TRANG */}
+              {currentData.map((row) => (
                 <tr key={row.id} className="hover:bg-[#1E253A]/30 transition group">
                   
                   {/* ID */}
@@ -303,7 +319,7 @@ export default function DashboardPage() {
                     {row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "—"}
                   </td>
 
-                  {/* ACTIONS BUTTONS (UPDATE CHUẨN ĐẸP THEO STYLE ICON BOX FILE MẪU) */}
+                  {/* ACTIONS BUTTONS */}
                   <td className="py-4 px-3">
                     <div className="flex items-center justify-center gap-2">
                       
@@ -347,17 +363,47 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* PAGINATION PANEL (CHUẨN FILE MẪU) */}
+        {/* PAGINATION PANEL (ĐÃ THAY LOGIC ĐỘNG) */}
         <div className="flex items-center justify-between pt-4 border-t border-[#22283D] text-xs text-zinc-400 px-1">
           <div>
-            Showing <span className="text-white font-medium">1-{tableData.length}</span> of <span className="text-white font-medium">{tableData.length}</span> items
+            Showing <span className="text-white font-medium">{tableData.length === 0 ? 0 : indexOfFirstItem + 1}-{Math.min(indexOfLastItem, tableData.length)}</span> of <span className="text-white font-medium">{tableData.length}</span> items
           </div>
           <div className="flex items-center gap-1.5 font-semibold">
-            <button className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] text-zinc-400 flex items-center justify-center hover:bg-[#1C2237] disabled:opacity-40" disabled>‹</button>
-            <button className="w-7 h-7 rounded-lg bg-[#0066FF] text-white flex items-center justify-center">1</button>
-            <button className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] flex items-center justify-center hover:bg-[#1C2237]">2</button>
-            <button className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] flex items-center justify-center hover:bg-[#1C2237]">3</button>
-            <button className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] text-zinc-400 flex items-center justify-center hover:bg-[#1C2237]">›</button>
+            {/* Nút lùi trang */}
+            <button 
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] text-zinc-400 flex items-center justify-center hover:bg-[#1C2237] disabled:opacity-30 disabled:pointer-events-none transition"
+            >
+              ‹
+            </button>
+            
+            {/* Render danh sách số trang động */}
+            {Array.from({ length: totalPages }, (_, idx) => {
+              const pageNum = idx + 1;
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${
+                    currentPage === pageNum
+                      ? "bg-[#0066FF] text-white"
+                      : "border border-[#2B3454] bg-[#121624] text-zinc-400 hover:bg-[#1C2237] hover:text-white"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+
+            {/* Nút tiến trang */}
+            <button 
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] text-zinc-400 flex items-center justify-center hover:bg-[#1C2237] disabled:opacity-30 disabled:pointer-events-none transition"
+            >
+              ›
+            </button>
           </div>
         </div>
 

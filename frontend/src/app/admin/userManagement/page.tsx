@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 const BASE_URL = "http://localhost:3001";
+const ITEMS_PER_PAGE = 5; // Cấu hình số lượng thành viên hiển thị trên một trang
 
 type User = {
   id: string;
@@ -19,10 +20,13 @@ export default function UserManagementPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [roles, setRoles] = useState<Record<string, string>>({});
 
-  /* STATE PHỤ VỤ TÌM KIẾM / LỌC / PHÂN TRANG */
+  /* STATE GIỮ NGUYÊN ĐỂ PHỤC VỤ UI KHÔNG BỊ LỖI */
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRole, setFilterRole] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  
+  /* STATE QUẢN LÝ TRANG HIỆN TẠI */
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchUsers();
@@ -84,10 +88,20 @@ export default function UserManagementPage() {
     }
   }
 
+  // =========================================================
+  // LOGIC XỬ LÝ PHÂN TRANG CLIENT-SIDE THUẦN TÚY (KHÔNG LỌC)
+  // =========================================================
+  const totalPages = Math.ceil(users.length / ITEMS_PER_PAGE) || 1;
+  const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
+  
+  // Cắt trực tiếp trên mảng gốc ban đầu không qua filter dữ liệu
+  const currentData = users.slice(indexOfFirstItem, indexOfLastItem);
+
   return (
     <div className="p-6 bg-[#121624] min-h-screen text-white font-sans antialiased select-none overflow-y-auto custom-scrollbar">
       
-      {/* HEADER SECTION (ĐÃ XÓA NÚT THÊM MỚI) */}
+      {/* HEADER SECTION */}
       <div className="mb-6">
         <h1 className="text-xl font-bold text-white flex items-center gap-2">
            Quản lý Hệ thống
@@ -97,7 +111,7 @@ export default function UserManagementPage() {
         </p>
       </div>
 
-      {/* SEARCH & FILTERS CONTROLS (ICON SVG CHUẨN XỊN) */}
+      {/* SEARCH & FILTERS CONTROLS (GIỮ NGUYÊN UI) */}
       <div className="bg-[#171B2A]/60 border border-[#22283D] p-4 rounded-2xl flex flex-col sm:flex-row gap-3 mb-4 items-center">
         <div className="relative flex-1 w-full">
           <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-zinc-500">
@@ -148,9 +162,12 @@ export default function UserManagementPage() {
         </div>
 
         <div className="divide-y divide-[#1F263E]/40 text-[13.5px]">
-          {users.map((user, index) => (
+          {/* MAP QUA DỮ LIỆU ĐÃ PHÂN TRANG THỰC TẾ currentData */}
+          {currentData.map((user, index) => (
             <div key={user.id} className="flex items-center py-3.5 hover:bg-[#1E253A]/30 transition px-2 rounded-xl">
-              <div className="w-[6%] text-zinc-400 font-mono pl-1">{String(index + 1).padStart(2, "0")}</div>
+              <div className="w-[6%] text-zinc-400 font-mono pl-1">
+                {String(indexOfFirstItem + index + 1).padStart(2, "0")}
+              </div>
               <div className="w-[20%] text-zinc-300 font-medium pr-3 truncate" title={user.email}>{user.email}</div>
               <div className="w-[18%] text-white font-semibold pr-3 truncate" title={user.displayName || "-"}>{user.displayName || "-"}</div>
               <div className="w-[15%] pr-4">
@@ -190,14 +207,44 @@ export default function UserManagementPage() {
         {/* PAGINATION PANEL */}
         <div className="flex items-center justify-between pt-4 border-t border-[#22283D] text-xs text-zinc-400 px-1">
           <div>
-            Showing <span className="text-white font-medium">1-{users.length}</span> of <span className="text-white font-medium">{users.length}</span> items
+            Showing <span className="text-white font-medium">{users.length === 0 ? 0 : indexOfFirstItem + 1}-{Math.min(indexOfLastItem, users.length)}</span> of <span className="text-white font-medium">{users.length}</span> items
           </div>
           <div className="flex items-center gap-1.5 font-semibold">
-            <button className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] text-zinc-400 flex items-center justify-center hover:bg-[#1C2237] disabled:opacity-40" disabled>‹</button>
-            <button className="w-7 h-7 rounded-lg bg-[#0066FF] text-white flex items-center justify-center">1</button>
-            <button className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] flex items-center justify-center hover:bg-[#1C2237]">2</button>
-            <button className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] flex items-center justify-center hover:bg-[#1C2237]">3</button>
-            <button className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] text-zinc-400 flex items-center justify-center hover:bg-[#1C2237]">›</button>
+            {/* Nút lùi trang */}
+            <button 
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] text-zinc-400 flex items-center justify-center hover:bg-[#1C2237] disabled:opacity-30 disabled:pointer-events-none transition"
+            >
+              ‹
+            </button>
+
+            {/* Tạo danh sách trang dựa trên tổng số trang thực tế */}
+            {Array.from({ length: totalPages }, (_, idx) => {
+              const pageNum = idx + 1;
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${
+                    currentPage === pageNum
+                      ? "bg-[#0066FF] text-white"
+                      : "border border-[#2B3454] bg-[#121624] text-zinc-400 hover:bg-[#1C2237] hover:text-white"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+
+            {/* Nút tiến trang */}
+            <button 
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] text-zinc-400 flex items-center justify-center hover:bg-[#1C2237] disabled:opacity-30 disabled:pointer-events-none transition"
+            >
+              ›
+            </button>
           </div>
         </div>
 

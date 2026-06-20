@@ -31,6 +31,15 @@ import { CourseProgressService } from './course-progress/course-progress.service
 import { DashboardController } from './dashboard/dashboard.controller';
 import { DashboardService } from './dashboard/dashboard.service';
 
+import { QuizController } from './quiz/quiz.controller';
+import { QuizService } from './quiz/quiz.service';
+
+import { AuthModule } from './auth/auth.module';
+import { MailModule } from './mail/mail.module';
+
+import { ProgressController } from './progress/progress.controller';
+import { ProgressService } from './progress/progress.service';
+
 import { UploadController } from './upload/upload.controller';
 
 import { PrismaService } from '../prisma/prisma.service';
@@ -40,6 +49,8 @@ import { PrismaService } from '../prisma/prisma.service';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    AuthModule,
+    MailModule,
   ],
 
   controllers: [
@@ -54,6 +65,8 @@ import { PrismaService } from '../prisma/prisma.service';
     QuizResultController, 
     CourseProgressController,
     DashboardController,
+    QuizController,
+    ProgressController,
   ],
 
   providers: [
@@ -68,6 +81,8 @@ import { PrismaService } from '../prisma/prisma.service';
     QuizResultService,
     CourseProgressService,
     DashboardService,
+    QuizService,
+    ProgressService,
   ],
 })
 export class AppModule { }
