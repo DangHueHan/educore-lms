@@ -1,6 +1,6 @@
 import {
-  IsNotEmpty,
   IsString,
+  IsNotEmpty,
 } from "class-validator";
 
 export class CreateCourseEnrollmentDto {

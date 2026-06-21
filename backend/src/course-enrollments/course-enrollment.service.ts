@@ -3,7 +3,8 @@ import {
   BadRequestException,
 } from "@nestjs/common";
 
-import { PrismaService } from "../../prisma/prisma.service";
+import { PrismaService }
+from "../../prisma/prisma.service";
 
 @Injectable()
 export class CourseEnrollmentService {
@@ -14,6 +15,9 @@ export class CourseEnrollmentService {
 
 
 
+  // =========================
+  // ĐĂNG KÝ KHÓA HỌC
+  // =========================
   async enroll(
     userId: string,
     courseId: string
@@ -23,8 +27,8 @@ export class CourseEnrollmentService {
       await this.prisma.course.findUnique({
 
         where: {
-          id: courseId
-        }
+          id: courseId,
+        },
 
       });
 
@@ -44,10 +48,10 @@ export class CourseEnrollmentService {
 
           userId_courseId: {
             userId,
-            courseId
-          }
+            courseId,
+          },
 
-        }
+        },
 
       });
 
@@ -67,37 +71,55 @@ export class CourseEnrollmentService {
         data: {
 
           userId,
+          courseId,
 
-          courseId
-
-        }
+        },
 
       });
 
 
 
-    await this.prisma.courseProgress.create({
+    await this.prisma.courseProgress.upsert({
 
-      data: {
+      where: {
+
+        userId_courseId: {
+          userId,
+          courseId,
+        },
+
+      },
+
+      create: {
 
         userId,
-
         courseId,
+        progressPercent: 0,
 
-        progressPercent: 0
+      },
 
-      }
+      update: {},
 
     });
 
 
 
-    return enrollment;
+    return {
+
+      message:
+        "Enroll course successfully",
+
+      enrollment,
+
+    };
 
   }
 
 
 
+  // =========================
+  // KHÓA HỌC CỦA TÔI
+  // =========================
   async findMyCourses(
     userId: string
   ) {
@@ -105,20 +127,32 @@ export class CourseEnrollmentService {
     return this.prisma.enrollment.findMany({
 
       where: {
-        userId
+        userId,
       },
 
       include: {
 
-        course: true
+        course: {
+
+          select: {
+
+            id: true,
+            title: true,
+            description: true,
+            thumbnail: true,
+            price: true,
+
+          },
+
+        },
 
       },
 
       orderBy: {
 
-        enrolledAt: "desc"
+        enrolledAt: "desc",
 
-      }
+      },
 
     });
 
@@ -126,6 +160,9 @@ export class CourseEnrollmentService {
 
 
 
+  // =========================
+  // CHECK ĐĂNG KÝ
+  // =========================
   async checkEnrollment(
     userId: string,
     courseId: string
@@ -138,17 +175,18 @@ export class CourseEnrollmentService {
 
           userId_courseId: {
             userId,
-            courseId
-          }
+            courseId,
+          },
 
-        }
+        },
 
       });
 
 
+
     return {
 
-      enrolled: !!enrollment
+      enrolled: !!enrollment,
 
     };
 

@@ -5,6 +5,7 @@ import {
   Body,
   Req,
   Param,
+  UnauthorizedException,
 } from "@nestjs/common";
 
 import type { Request } from "express";
@@ -24,6 +25,10 @@ export class CourseEnrollmentController {
 
 
 
+  // =========================
+  // ĐĂNG KÝ KHÓA HỌC
+  // POST /course-enrollments
+  // =========================
   @Post()
   enroll(
 
@@ -38,6 +43,12 @@ export class CourseEnrollmentController {
     const userId =
       req.cookies.userId;
 
+    if (!userId) {
+      throw new UnauthorizedException(
+        "Please login first"
+      );
+    }
+
     return this.service.enroll(
       userId,
       body.courseId
@@ -47,6 +58,10 @@ export class CourseEnrollmentController {
 
 
 
+  // =========================
+  // KHÓA HỌC CỦA TÔI
+  // GET /course-enrollments/my
+  // =========================
   @Get("my")
   findMyCourses(
 
@@ -58,6 +73,12 @@ export class CourseEnrollmentController {
     const userId =
       req.cookies.userId;
 
+    if (!userId) {
+      throw new UnauthorizedException(
+        "Please login first"
+      );
+    }
+
     return this.service.findMyCourses(
       userId
     );
@@ -66,6 +87,10 @@ export class CourseEnrollmentController {
 
 
 
+  // =========================
+  // CHECK ĐÃ ĐĂNG KÝ CHƯA
+  // GET /course-enrollments/check/:courseId
+  // =========================
   @Get("check/:courseId")
   checkEnrollment(
 
@@ -79,6 +104,12 @@ export class CourseEnrollmentController {
 
     const userId =
       req.cookies.userId;
+
+    if (!userId) {
+      return {
+        enrolled: false,
+      };
+    }
 
     return this.service.checkEnrollment(
       userId,

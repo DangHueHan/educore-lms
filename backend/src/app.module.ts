@@ -40,6 +40,9 @@ import { MailModule } from './mail/mail.module';
 import { ProgressController } from './progress/progress.controller';
 import { ProgressService } from './progress/progress.service';
 
+import { CourseEnrollmentService } from './course-enrollments/course-enrollment.service';
+import { CourseEnrollmentController } from './course-enrollments/course-enrollment.controller';
+
 import { UploadController } from './upload/upload.controller';
 
 import { PrismaService } from '../prisma/prisma.service';
@@ -67,6 +70,7 @@ import { PrismaService } from '../prisma/prisma.service';
     DashboardController,
     QuizController,
     ProgressController,
+    CourseEnrollmentController,
   ],
 
   providers: [
@@ -83,6 +87,7 @@ import { PrismaService } from '../prisma/prisma.service';
     DashboardService,
     QuizService,
     ProgressService,
+    CourseEnrollmentService,
   ],
 })
 export class AppModule { }

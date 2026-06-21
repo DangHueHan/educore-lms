@@ -1,15 +1,11 @@
 import { Module } from "@nestjs/common";
 
+import { CourseEnrollmentController } from "./course-enrollment.controller";
+import { CourseEnrollmentService } from "./course-enrollment.service";
+
 import { PrismaService } from "../../prisma/prisma.service";
 
-import { CourseEnrollmentController }
-from "./course-enrollment.controller";
-
-import { CourseEnrollmentService }
-from "./course-enrollment.service";
-
 @Module({
-
   controllers: [
     CourseEnrollmentController
   ],
@@ -18,6 +14,5 @@ from "./course-enrollment.service";
     CourseEnrollmentService,
     PrismaService
   ],
-
 })
 export class CourseEnrollmentModule {}
