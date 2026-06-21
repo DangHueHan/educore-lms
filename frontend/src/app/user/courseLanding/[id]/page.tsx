@@ -1,8 +1,16 @@
 "use client";
-
+import { useState } from "react";
 import Link from "next/link";
-
+import { useParams } from "next/navigation";
 export default function JavascriptProLandingPage() {
+   const params = useParams();
+  const id = params.id as string;
+
+
+const [loading, setLoading] = useState(false);
+
+const BASE_URL = "http://localhost:3001";
+  console.log(id);
   // Dữ liệu cứng được khai báo trực tiếp ở đây để map ra giống hệt cấu trúc file lịch sử
   const targets = [
     { 
@@ -21,7 +29,46 @@ export default function JavascriptProLandingPage() {
       desc: "Bạn là người mới bắt đầu và đang tìm hiểu về nghề lập trình web? Bạn đang chưa biết bắt đầu từ đâu..." 
     }
   ];
+const handlePayment = async () => {
+  try {
 
+    setLoading(true);
+
+    const res = await fetch(
+      `${BASE_URL}/payment/create`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          courseId: id,
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.url) {
+      window.location.href = data.url;
+      return;
+    }
+
+    alert(data.message || "Không tạo được thanh toán");
+
+  } catch (error) {
+
+    console.log(error);
+
+    alert("Có lỗi xảy ra");
+
+  } finally {
+
+    setLoading(false);
+
+  }
+};
   return (
     <div className="min-h-screen bg-[#10141d] text-slate-200 font-sans pb-32">
       
@@ -50,10 +97,31 @@ export default function JavascriptProLandingPage() {
                   style={{ background: "linear-gradient(90deg, #2878f4 0%, #9b51e0 100%)" }}>
               HỌC THỬ MIỄN PHÍ
             </Link>
-            <Link href="#" 
-                  className="inline-flex items-center justify-center bg-[#20293a] text-gray-200 border border-gray-700/50 font-bold px-8 py-4 rounded-full text-base hover:bg-[#28344c] transition-all text-center min-w-[200px]">
-              MUA NGAY
-            </Link>
+            <button
+  onClick={handlePayment}
+  disabled={loading}
+  className="
+    inline-flex
+    items-center
+    justify-center
+    bg-[#20293a]
+    text-gray-200
+    border
+    border-gray-700/50
+    font-bold
+    px-8
+    py-4
+    rounded-full
+    text-base
+    hover:bg-[#28344c]
+    transition-all
+    text-center
+    min-w-[200px]
+    disabled:opacity-50
+  "
+>
+  {loading ? "ĐANG XỬ LÝ..." : "MUA NGAY"}
+</button>
           </div>
         </div>
 

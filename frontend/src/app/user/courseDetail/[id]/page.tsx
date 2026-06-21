@@ -29,96 +29,138 @@ export default async function CourseDetailPage({
   }
 
   const course = await res.json();
+  //moi them
+  let hasUser = false;
 
   let enrolled = false;
-  
+
   let progressPercent = 0;
 
   let lastLessonTitle = "";
 
-  try {
+  // try {
 
-    const cookieStore = await cookies();
+  //   const cookieStore = await cookies();
 
-    const check = await fetch(
-      `${BASE_URL}/course-enrollments/check/${id}`,
-      {
-        cache: "no-store",
+  //   const check = await fetch(
+  //     `${BASE_URL}/course-enrollments/check/${id}`,
+  //     {
+  //       cache: "no-store",
 
-        headers: {
-          Cookie: cookieStore.toString(),
-        },
-      }
-    );
-
-
-    if (check.ok) {
-
-      const data = await check.json();
-
-      enrolled = data.enrolled;
-
-    }
-
-  } catch (error) {
-
-    console.log(error);
-
-    enrolled = false;
-
-  }
+  //       headers: {
+  //         Cookie: cookieStore.toString(),
+  //       },
+  //     }
+  //   );
 
 
-if(enrolled){
+  //   if (check.ok) {
 
-  try {
+  //     const data = await check.json();
 
-    const cookieStore = await cookies();
+  //     enrolled = data.enrolled;
 
-    const progress =
-      await fetch(
-        `${BASE_URL}/course-progress`,
+  //   }
+
+  // } catch (error) {
+
+  //   console.log(error);
+
+  //   enrolled = false;
+
+  // }
+  //moi them
+  const cookieStore = await cookies();
+
+  const token = cookieStore.get("token");
+
+
+  if (token) {
+
+    hasUser = true;
+
+
+    try {
+
+      const check = await fetch(
+        `${BASE_URL}/course-enrollments/check/${id}`,
         {
-          cache:"no-store",
-          headers:{
+          cache: "no-store",
+          headers: {
             Cookie: cookieStore.toString(),
-          }
+          },
         }
       );
 
 
-    if(progress.ok){
+      if (check.ok) {
 
-      const data = await progress.json();
+        const data = await check.json();
 
-      console.log("COURSE PROGRESS:", data);
+        enrolled = data.enrolled;
 
-
-      const progressData =
-        Array.isArray(data)
-          ? data.find(
-              (x:any)=>x.course?.id === id
-            )
-          : data;
+      }
 
 
-      progressPercent =
-        progressData?.progressPercent ?? 0;
+    } catch (error) {
 
-
-      lastLessonTitle =
-        progressData?.lastLessonTitle ?? "";
+      console.log(error);
 
     }
 
-
-  } catch(error){
-
-    console.log(error);
-
   }
 
-}
+
+  if (hasUser && enrolled) {
+
+    try {
+
+      const cookieStore = await cookies();
+
+      const progress =
+        await fetch(
+          `${BASE_URL}/course-progress`,
+          {
+            cache: "no-store",
+            headers: {
+              Cookie: cookieStore.toString(),
+            }
+          }
+        );
+
+
+      if (progress.ok) {
+
+        const data = await progress.json();
+
+        console.log("COURSE PROGRESS:", data);
+
+
+        const progressData =
+          Array.isArray(data)
+            ? data.find(
+              (x: any) => x.course?.id === id
+            )
+            : data;
+
+
+        progressPercent =
+          progressData?.progressPercent ?? 0;
+
+
+        lastLessonTitle =
+          progressData?.lastLessonTitle ?? "";
+
+      }
+
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+
+  }
 
 
 
@@ -422,9 +464,41 @@ if(enrolled){
                       {
                         !enrolled && (
 
-                          <EnrollButton
-                            courseId={course.id}
-                          />
+                          // <EnrollButton
+                          //   courseId={course.id}
+                          // />
+                          course.price > 0 ? (
+
+                            <Link
+                              href={`/user/courseLanding/${course.id}`}
+                              className="
+    w-full
+    bg-blue-600
+    hover:bg-blue-700
+    text-white    
+    font-black
+    py-3.5
+    rounded-full
+    text-[16px]
+    shadow-md
+    transition
+    duration-200
+    uppercase
+    tracking-wide
+    text-center
+    block
+  "
+                            >
+                              Mua khóa học
+                            </Link>
+
+                          ) : (
+
+                            <EnrollButton
+                              courseId={course.id}
+                            />
+
+                          )
 
                         )
                       }
@@ -494,124 +568,124 @@ if(enrolled){
               enrolled && (
 
 
-            <div className="bg-white rounded-3xl border border-gray-200 shadow-lg p-6">
+                <div className="bg-white rounded-3xl border border-gray-200 shadow-lg p-6">
 
 
-      <h2 className="text-xl font-black mb-5">
-        Tiến độ học tập
-      </h2>
-
-
-
-      {/* progress bar */}
-
-      <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
-
-        <div
-          className="bg-[#1d4ed8] h-3 rounded-full transition-all duration-500"
-          style={{
-            width: `${progressPercent}%`
-          }}
-        />
-
-      </div>
+                  <h2 className="text-xl font-black mb-5">
+                    Tiến độ học tập
+                  </h2>
 
 
 
-      <div className="flex justify-between mb-6">
+                  {/* progress bar */}
 
-        <span className="text-gray-500 text-sm">
-          Hoàn thành
-        </span>
+                  <div className="w-full bg-gray-200 rounded-full h-3 mb-4">
 
-        <span className="font-black text-[#1d4ed8]">
-          {progressPercent}%
-        </span>
+                    <div
+                      className="bg-[#1d4ed8] h-3 rounded-full transition-all duration-500"
+                      style={{
+                        width: `${progressPercent}%`
+                      }}
+                    />
 
-      </div>
-
-
-
+                  </div>
 
 
-      <div className="bg-blue-50 rounded-xl p-4 mb-6">
 
+                  <div className="flex justify-between mb-6">
 
-        <p className="text-xs text-gray-500 font-bold mb-1">
-          ĐÃ HỌC
-        </p>
+                    <span className="text-gray-500 text-sm">
+                      Hoàn thành
+                    </span>
 
+                    <span className="font-black text-[#1d4ed8]">
+                      {progressPercent}%
+                    </span>
 
-        <p className="font-bold text-gray-800 text-sm truncate">
-
-          {
-            lastLessonTitle
-              ? lastLessonTitle
-              : "Chưa bắt đầu bài học nào"
-          }
-
-        </p>
-
-
-      </div>
+                  </div>
 
 
 
 
 
-
-      <div className="space-y-4 text-sm">
-
-
-        <div className="flex justify-between">
-
-          <span className="text-gray-500">
-            Tổng bài học
-          </span>
-
-          <span className="font-bold">
-            {course.lessons.length}
-          </span>
-
-        </div>
+                  <div className="bg-blue-50 rounded-xl p-4 mb-6">
 
 
+                    <p className="text-xs text-gray-500 font-bold mb-1">
+                      ĐÃ HỌC
+                    </p>
 
 
-        <div className="flex justify-between">
+                    <p className="font-bold text-gray-800 text-sm truncate">
 
-          <span className="text-gray-500">
-            Quiz
-          </span>
+                      {
+                        lastLessonTitle
+                          ? lastLessonTitle
+                          : "Chưa bắt đầu bài học nào"
+                      }
 
-          <span className="font-bold">
-            {course.questions.length}
-          </span>
+                    </p>
 
-        </div>
+
+                  </div>
 
 
 
 
-        <div className="flex justify-between">
-
-          <span className="text-gray-500">
-            Trạng thái
-          </span>
 
 
-          <span className="text-green-600 font-bold">
-            Đã tham gia
-          </span>
-
-        </div>
+                  <div className="space-y-4 text-sm">
 
 
-      </div>
+                    <div className="flex justify-between">
+
+                      <span className="text-gray-500">
+                        Tổng bài học
+                      </span>
+
+                      <span className="font-bold">
+                        {course.lessons.length}
+                      </span>
+
+                    </div>
 
 
 
-    </div>
+
+                    <div className="flex justify-between">
+
+                      <span className="text-gray-500">
+                        Quiz
+                      </span>
+
+                      <span className="font-bold">
+                        {course.questions.length}
+                      </span>
+
+                    </div>
+
+
+
+
+                    <div className="flex justify-between">
+
+                      <span className="text-gray-500">
+                        Trạng thái
+                      </span>
+
+
+                      <span className="text-green-600 font-bold">
+                        Đã tham gia
+                      </span>
+
+                    </div>
+
+
+                  </div>
+
+
+
+                </div>
 
 
 

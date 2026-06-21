@@ -43,6 +43,10 @@ import { ProgressService } from './progress/progress.service';
 import { CourseEnrollmentService } from './course-enrollments/course-enrollment.service';
 import { CourseEnrollmentController } from './course-enrollments/course-enrollment.controller';
 
+import { PaymentController } from './payment/payment.controller';
+import { PaymentService } from './payment/payment.service';
+
+
 import { UploadController } from './upload/upload.controller';
 
 import { PrismaService } from '../prisma/prisma.service';
@@ -59,24 +63,25 @@ import { PrismaService } from '../prisma/prisma.service';
   controllers: [
     AppController,
     CourseController,
-    LessonController,   
+    LessonController,
     UploadController,
     QuestionController,
     AnswerController,
-    UserController, 
+    UserController,
     EnrollmentController,
-    QuizResultController, 
+    QuizResultController,
     CourseProgressController,
     DashboardController,
     QuizController,
     ProgressController,
     CourseEnrollmentController,
+    PaymentController,
   ],
 
   providers: [
     AppService,
     CourseService,
-    LessonService,     
+    LessonService,
     PrismaService,
     QuestionService,
     AnswerService,
@@ -88,6 +93,7 @@ import { PrismaService } from '../prisma/prisma.service';
     QuizService,
     ProgressService,
     CourseEnrollmentService,
+    PaymentService,
   ],
 })
 export class AppModule { }

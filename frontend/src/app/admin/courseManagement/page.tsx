@@ -8,6 +8,7 @@ const ITEMS_PER_PAGE = 5; // Bạn có thể tùy chỉnh số lượng hiển t
 type Course = {
   id: string;
   title: string;
+  price: number;
   description?: string;
   thumbnail?: string;
   createdAt?: string;
@@ -214,15 +215,15 @@ export default function DashboardPage() {
 
   return (
     <div className="p-6 bg-[#121624] min-h-screen text-white font-sans antialiased select-none custom-scrollbar overflow-y-auto">
-      
+
       {/* HEADER ACTION BAR */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h1 className="text-xl font-bold text-white flex items-center gap-2">
-             Quản lý Khóa học
+            Quản lý Khóa học
           </h1>
           <p className="text-xs text-zinc-400 mt-0.5">
-          Xem, khởi tạo và cập nhật thông tin tổng quan các chương trình đào tạo trên hệ thống Educore
+            Xem, khởi tạo và cập nhật thông tin tổng quan các chương trình đào tạo trên hệ thống Educore
           </p>
         </div>
 
@@ -251,8 +252,8 @@ export default function DashboardPage() {
           />
         </div>
 
-        <select 
-          value={filterRange} 
+        <select
+          value={filterRange}
           onChange={(e) => setFilterRange(e.target.value)}
           className="bg-[#121624] border border-[#2B3454] rounded-xl px-4 py-2 text-xs text-zinc-300 focus:outline-none focus:border-[#0066FF] cursor-pointer w-full sm:w-[200px] transition"
         >
@@ -264,7 +265,7 @@ export default function DashboardPage() {
 
       {/* MAIN DATA TABLE CONTAINER */}
       <div className="bg-[#171B2A] border border-[#22283D] rounded-2xl p-5 shadow-sm space-y-3">
-        
+
         {/* TABLE WRAPPER */}
         <div className="overflow-x-auto w-full custom-scrollbar">
           <table className="w-full text-left border-collapse min-w-[700px]">
@@ -272,6 +273,7 @@ export default function DashboardPage() {
               <tr className="text-zinc-500 text-[13px] font-bold border-b border-[#22283D]">
                 <th className="pb-4 px-3 w-[12%] font-bold">Mã số</th>
                 <th className="pb-4 px-3 w-[28%] font-bold">Tên khóa học</th>
+                <th className="pb-4 px-3 w-[32%] font-bold">Giá</th>
                 <th className="pb-4 px-3 w-[32%] font-bold">Mô tả chi tiết</th>
                 <th className="pb-4 px-3 w-[10%] font-bold text-center">Ảnh đại diện</th>
                 <th className="pb-4 px-3 w-[10%] font-bold text-center">Ngày tạo</th>
@@ -283,7 +285,7 @@ export default function DashboardPage() {
               {/* THAY THẾ tableData BẰNG currentData ĐỂ PHÂN TRANG */}
               {currentData.map((row) => (
                 <tr key={row.id} className="hover:bg-[#1E253A]/30 transition group">
-                  
+
                   {/* ID */}
                   <td className="py-4 px-3 text-zinc-400 font-mono text-xs">
                     {row.id.substring(0, 8)}...
@@ -293,7 +295,14 @@ export default function DashboardPage() {
                   <td className="py-4 px-3 font-semibold text-zinc-100 max-w-[200px] truncate" title={row.title}>
                     {row.title}
                   </td>
+                  {/* PRICE */}
 
+                  <td className="py-4 px-3 font-bold text-zinc-100">
+                    {row.price > 0
+                      ? `${row.price.toLocaleString("vi-VN")}đ`
+                      : <span className="text-green-500">MIỄN PHÍ</span>
+                    }
+                  </td>
                   {/* DESCRIPTION */}
                   <td className="py-4 px-3 text-zinc-400 max-w-[250px] truncate font-medium" title={row.description || ""}>
                     {row.description || <span className="text-zinc-600 italic text-xs">Chưa có mô tả</span>}
@@ -322,9 +331,9 @@ export default function DashboardPage() {
                   {/* ACTIONS BUTTONS */}
                   <td className="py-4 px-3">
                     <div className="flex items-center justify-center gap-2">
-                      
+
                       {/* Nút Sửa */}
-                      <button 
+                      <button
                         type="button"
                         onClick={() => handleEdit(row)}
                         title="Sửa"
@@ -336,7 +345,7 @@ export default function DashboardPage() {
                       </button>
 
                       {/* Nút Xóa */}
-                      <button 
+                      <button
                         type="button"
                         onClick={() => handleDelete(row.id)}
                         title="Xóa"
@@ -359,7 +368,7 @@ export default function DashboardPage() {
         {/* EMPTY STATE */}
         {tableData.length === 0 && (
           <div className="py-12 text-center text-zinc-500 font-medium text-sm">
-             Chưa có khóa học nào được đăng tải trên hệ thống.
+            Chưa có khóa học nào được đăng tải trên hệ thống.
           </div>
         )}
 
@@ -370,14 +379,14 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center gap-1.5 font-semibold">
             {/* Nút lùi trang */}
-            <button 
+            <button
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
               className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] text-zinc-400 flex items-center justify-center hover:bg-[#1C2237] disabled:opacity-30 disabled:pointer-events-none transition"
             >
               ‹
             </button>
-            
+
             {/* Render danh sách số trang động */}
             {Array.from({ length: totalPages }, (_, idx) => {
               const pageNum = idx + 1;
@@ -385,11 +394,10 @@ export default function DashboardPage() {
                 <button
                   key={pageNum}
                   onClick={() => setCurrentPage(pageNum)}
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${
-                    currentPage === pageNum
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center transition ${currentPage === pageNum
                       ? "bg-[#0066FF] text-white"
                       : "border border-[#2B3454] bg-[#121624] text-zinc-400 hover:bg-[#1C2237] hover:text-white"
-                  }`}
+                    }`}
                 >
                   {pageNum}
                 </button>
@@ -397,7 +405,7 @@ export default function DashboardPage() {
             })}
 
             {/* Nút tiến trang */}
-            <button 
+            <button
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
               className="w-7 h-7 rounded-lg border border-[#2B3454] bg-[#121624] text-zinc-400 flex items-center justify-center hover:bg-[#1C2237] disabled:opacity-30 disabled:pointer-events-none transition"
@@ -413,7 +421,7 @@ export default function DashboardPage() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-50 p-4 animate-fadeIn">
           <div className="bg-[#171B2A] border border-[#2B3454] w-full max-w-md overflow-hidden rounded-2xl flex flex-col shadow-2xl">
-            
+
             {/* MODAL HEADER */}
             <div className="flex justify-between items-center p-5 border-b border-[#22283D] bg-[#141929]/50">
               <h2 className="text-base font-bold text-white">
@@ -430,7 +438,7 @@ export default function DashboardPage() {
 
             {/* MODAL FORM CONTENT */}
             <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
-              
+
               {/* FIELD: TITLE */}
               <div className="space-y-1.5">
                 <label className="text-zinc-400 font-bold uppercase tracking-wider text-[10px]">Tên khóa học *</label>
@@ -459,7 +467,7 @@ export default function DashboardPage() {
               {/* FIELD: FILE UPLOAD */}
               <div className="space-y-2">
                 <label className="text-zinc-400 font-bold uppercase tracking-wider text-[10px] block">Hình ảnh thu nhỏ (Thumbnail)</label>
-                
+
                 <div className="relative w-full bg-[#121624] border border-dashed border-[#2B3454] hover:border-[#0066FF] rounded-xl p-4 transition text-center cursor-pointer group">
                   <input
                     type="file"
