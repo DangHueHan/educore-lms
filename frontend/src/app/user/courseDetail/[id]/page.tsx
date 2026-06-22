@@ -38,38 +38,7 @@ export default async function CourseDetailPage({
 
   let lastLessonTitle = "";
 
-  // try {
-
-  //   const cookieStore = await cookies();
-
-  //   const check = await fetch(
-  //     `${BASE_URL}/course-enrollments/check/${id}`,
-  //     {
-  //       cache: "no-store",
-
-  //       headers: {
-  //         Cookie: cookieStore.toString(),
-  //       },
-  //     }
-  //   );
-
-
-  //   if (check.ok) {
-
-  //     const data = await check.json();
-
-  //     enrolled = data.enrolled;
-
-  //   }
-
-  // } catch (error) {
-
-  //   console.log(error);
-
-  //   enrolled = false;
-
-  // }
-  //moi them
+  
   const cookieStore = await cookies();
 
   const token = cookieStore.get("token");
@@ -111,15 +80,63 @@ export default async function CourseDetailPage({
   }
 
 
+  // if (hasUser && enrolled) {
+
+  //   try {
+
+  //     const cookieStore = await cookies();
+
+  //     const progress =
+  //       await fetch(
+  //         `${BASE_URL}/course-progress`,
+  //         {
+  //           cache: "no-store",
+  //           headers: {
+  //             Cookie: cookieStore.toString(),
+  //           }
+  //         }
+  //       );
+
+
+  //     if (progress.ok) {
+
+  //       const data = await progress.json();
+
+  //       console.log("COURSE PROGRESS:", data);
+
+
+  //       const progressData =
+  //         Array.isArray(data)
+  //           ? data.find(
+  //             (x: any) => x.course?.id === id
+  //           )
+  //           : data;
+
+
+  //       progressPercent =
+  //         progressData?.progressPercent ?? 0;
+
+
+  //       lastLessonTitle =
+  //         progressData?.lastLessonTitle ?? "";
+
+  //     }
+
+
+  //   } catch (error) {
+
+  //     console.log(error);
+
+  //   }
+
+  // }
   if (hasUser && enrolled) {
 
     try {
 
-      const cookieStore = await cookies();
-
       const progress =
         await fetch(
-          `${BASE_URL}/course-progress`,
+          `${BASE_URL}/progress/${id}`,
           {
             cache: "no-store",
             headers: {
@@ -128,31 +145,18 @@ export default async function CourseDetailPage({
           }
         );
 
-
       if (progress.ok) {
 
-        const data = await progress.json();
-
-        console.log("COURSE PROGRESS:", data);
-
-
-        const progressData =
-          Array.isArray(data)
-            ? data.find(
-              (x: any) => x.course?.id === id
-            )
-            : data;
-
+        const data =
+          await progress.json();
 
         progressPercent =
-          progressData?.progressPercent ?? 0;
-
+          data?.progressPercent ?? 0;
 
         lastLessonTitle =
-          progressData?.lastLessonTitle ?? "";
+          data?.lastLessonTitle ?? "";
 
       }
-
 
     } catch (error) {
 
@@ -161,7 +165,6 @@ export default async function CourseDetailPage({
     }
 
   }
-
 
 
   return (
@@ -289,19 +292,7 @@ export default async function CourseDetailPage({
                       </div>
                     ))}
 
-                    {/* Mục câu hỏi Quiz cuối khóa */}
-                    {/* <Link
-                      href={`/user/questionAnswer/${course.id}`}
-                      className="flex justify-between items-center px-12 py-3.5 bg-blue-50/50 hover:bg-blue-50 transition"
-                    >
-                      <div className="flex items-center gap-3 text-[14.5px] text-blue-800 font-semibold">
-                        <span>Bài tập cuối khóa: Các câu hỏi Quiz trắc nghiệm</span>
-                      </div>
-
-                      <span className="text-xs bg-blue-100 text-blue-700 font-bold px-2.5 py-0.5 rounded-full">
-                        {course.questions.length} câu hỏi
-                      </span>
-                    </Link> */}
+                   
 
 
                     {
@@ -463,43 +454,43 @@ export default async function CourseDetailPage({
 
                       {
                         !enrolled && (
-
-                          // <EnrollButton
-                          //   courseId={course.id}
-                          // />
                           course.price > 0 ? (
-
                             <Link
-                              href={`/user/courseLanding/${course.id}`}
+                              href={
+                                hasUser
+                                  ? `/user/courseLanding/${course.id}`
+                                  : "/auth"
+                              }
                               className="
-    w-full
-    bg-blue-600
-    hover:bg-blue-700
-    text-white    
-    font-black
-    py-3.5
-    rounded-full
-    text-[16px]
-    shadow-md
-    transition
-    duration-200
-    uppercase
-    tracking-wide
-    text-center
-    block
-  "
+          w-full
+          bg-[#1d4ed8]
+          hover:bg-[#1e40af]
+          active:scale-[0.98]
+          text-white
+          font-black
+          py-3.5
+          rounded-full
+          text-[16px]
+          shadow-md
+          hover:shadow-lg
+          transition-all
+          duration-200
+          uppercase
+          tracking-wide
+          text-center
+          block
+        "
                             >
-                              Mua khóa học
+                              {hasUser
+                                ? "Mua khóa học"
+                                : "Đăng nhập để mua khóa học"
+                              }
                             </Link>
-
                           ) : (
-
                             <EnrollButton
                               courseId={course.id}
                             />
-
                           )
-
                         )
                       }
 
