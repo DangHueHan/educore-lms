@@ -46,6 +46,11 @@ import { CourseEnrollmentController } from './course-enrollments/course-enrollme
 import { PaymentController } from './payment/payment.controller';
 import { PaymentService } from './payment/payment.service';
 
+import { CouponController } from './coupon/coupon.controller';
+import { CouponService } from './coupon/coupon.service';
+
+import { PaymentManagementController } from './payment-management/payment-management.controller';
+import { PaymentManagementService } from './payment-management/payment-management.service';
 
 import { UploadController } from './upload/upload.controller';
 
@@ -76,6 +81,8 @@ import { PrismaService } from '../prisma/prisma.service';
     ProgressController,
     CourseEnrollmentController,
     PaymentController,
+    CouponController,
+    PaymentManagementController,
   ],
 
   providers: [
@@ -94,6 +101,8 @@ import { PrismaService } from '../prisma/prisma.service';
     ProgressService,
     CourseEnrollmentService,
     PaymentService,
+    CouponService,
+    PaymentManagementService,
   ],
 })
 export class AppModule { }

@@ -630,6 +630,7 @@ async function main() {
     }
   }
 
+  
   // ================= 3. KHỚP MỚI: ĐỔ DỮ LIỆU ĐÚNG SCHEMA CHO COUPON
   await prisma.coupon.createMany({
     data: [
@@ -638,6 +639,10 @@ async function main() {
         code: 'CHAOHE2026', 
         discountPercent: 10, 
         quantity: 100, 
+        usedCount: 1, 
+        isActive: true,
+        isDeleted: false, // Thêm trường soft delete mới
+        deletedAt: null,
         startDate: new Date('2026-01-01'), 
         endDate: new Date('2026-12-31') 
       },
@@ -646,8 +651,24 @@ async function main() {
         code: 'PROVIP', 
         discountPercent: 20, 
         quantity: 50, 
+        usedCount: 0,
+        isActive: true,
+        isDeleted: false, // Thêm trường soft delete mới
+        deletedAt: null,
         startDate: new Date('2026-01-01'), 
         endDate: new Date('2026-12-31') 
+      },
+      { 
+        id: 'coupon-expired', 
+        code: 'OLDYEAR2025', 
+        discountPercent: 50, 
+        quantity: 10, 
+        usedCount: 10, 
+        isActive: false,
+        isDeleted: true, // Tiện tay seed luôn 1 em đã bị xóa để sau này test query soft delete
+        deletedAt: new Date('2026-01-01'),
+        startDate: new Date('2025-01-01'), 
+        endDate: new Date('2025-12-31') 
       }
     ]
   });
@@ -687,13 +708,13 @@ async function main() {
       },
     });
 
-    // Đổ dữ liệu lịch sử từng bài học vào LessonProgress (Đúng schema)
+    // Đổ dữ liệu lịch sử từng bài học vào LessonProgress
     await prisma.lessonProgress.createMany({
       data: e.completedLessons.map(lessonId => ({
         id: `lprog-${e.userId}-${lessonId}`,
         userId: e.userId,
         lessonId: lessonId,
-        watchedSeconds: 120, // Trường mới
+        watchedSeconds: 120, 
         isCompleted: true
       }))
     });
@@ -738,9 +759,45 @@ async function main() {
   // ================= 5. KHỚP MỚI: ĐỔ DỮ LIỆU ĐÚNG SCHEMA CHO PAYMENT
   await prisma.payment.createMany({
     data: [
-      { id: 'pay-1', userId: 'user-2', courseId: 'course-1', amount: 499000, status: 'completed', transactionNo: 'TXN-VNPAY-99122' },
-      { id: 'pay-2', userId: 'user-2', courseId: 'course-2', amount: 799000, status: 'completed', transactionNo: 'TXN-STRIPE-88123' },
-      { id: 'pay-3', userId: 'user-3', courseId: 'course-3', amount: 299000, status: 'completed', transactionNo: 'TXN-MOMO-77124' },
+      { 
+        id: 'pay-1', 
+        userId: 'user-2', 
+        courseId: 'course-1', 
+        originalAmount: 554000, 
+        discountAmount: 55000,  
+        amount: 499000,         
+        method: 'VNPAY', 
+        status: 'SUCCESS', 
+        transactionNo: 'TXN-VNPAY-99122',
+        couponCode: 'CHAOHE2026',
+        paidAt: new Date()
+      },
+      { 
+        id: 'pay-2', 
+        userId: 'user-2', 
+        courseId: 'course-2', 
+        originalAmount: 799000,
+        discountAmount: 0,
+        amount: 799000, 
+        method: 'STRIPE',
+        status: 'SUCCESS', 
+        transactionNo: 'TXN-STRIPE-88123',
+        couponCode: null,
+        paidAt: new Date()
+      },
+      { 
+        id: 'pay-3', 
+        userId: 'user-3', 
+        courseId: 'course-3', 
+        originalAmount: 299000,
+        discountAmount: 0,
+        amount: 299000, 
+        method: 'MOMO',
+        status: 'SUCCESS', 
+        transactionNo: 'TXN-MOMO-77124',
+        couponCode: null,
+        paidAt: new Date()
+      },
     ]
   });
 
@@ -753,7 +810,7 @@ async function main() {
     ]
   });
 
-  console.log('🌱 Seeding completed! Đã giữ nguyên vẹn 10 câu hỏi/khóa học và nạp đầy đủ dữ liệu bảng mới khớp 100% với Schema của anh/chị.');
+  console.log('🌱 Seeding completed! ');
 }
 
 main()

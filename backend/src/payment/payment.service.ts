@@ -86,23 +86,43 @@ export class PaymentService {
 
 
 
+    // const payment =
+    //   await this.prisma.payment.create({
+
+    //     data:{
+
+    //       userId,
+
+    //       courseId,
+
+    //       amount:
+    //         course.price,
+
+    //       status:"PENDING"
+
+    //     }
+
+    //   });
     const payment =
-      await this.prisma.payment.create({
+  await this.prisma.payment.create({
 
-        data:{
+    data:{
 
-          userId,
+      userId,
 
-          courseId,
+      courseId,
 
-          amount:
-            course.price,
+      originalAmount: course.price,
 
-          status:"PENDING"
+      discountAmount: 0,
 
-        }
+      amount: course.price,
 
-      });
+      status:"PENDING"
+
+    }
+
+  });
 
 
 

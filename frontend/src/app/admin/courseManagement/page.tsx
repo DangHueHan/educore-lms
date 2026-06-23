@@ -25,6 +25,7 @@ export default function DashboardPage() {
   const [form, setForm] = useState({
     title: "",
     description: "",
+    price: 0,
   });
 
   const [loading, setLoading] = useState(false);
@@ -85,7 +86,7 @@ export default function DashboardPage() {
   // RESET FORM (KEEP LOGIC)
   // =========================
   function resetForm() {
-    setForm({ title: "", description: "" });
+    setForm({ title: "", description: "", price: 0 });
     setFile(null);
     setPreviewUrl(null);
     setEditingId(null);
@@ -108,6 +109,7 @@ export default function DashboardPage() {
     setForm({
       title: row.title || "",
       description: row.description || "",
+      price: row.price || 0,
     });
 
     setPreviewUrl(row.thumbnail || null);
@@ -157,6 +159,7 @@ export default function DashboardPage() {
       const payload: any = {
         title: form.title,
         description: form.description,
+        price: Number(form.price),
       };
 
       if (imageUrl) {
@@ -235,7 +238,7 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      {/* SEARCH & FILTERS CONTROLS (CHUẨN FILE MẪU) */}
+      {/* SEARCH & FILTERS CONTROLS */}
       <div className="bg-[#171B2A]/60 border border-[#22283D] p-4 rounded-2xl flex flex-col sm:flex-row gap-3 mb-4 items-center">
         <div className="relative flex-1 w-full">
           <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-zinc-500">
@@ -268,54 +271,54 @@ export default function DashboardPage() {
 
         {/* TABLE WRAPPER */}
         <div className="overflow-x-auto w-full custom-scrollbar">
-          <table className="w-full text-left border-collapse min-w-[700px]">
+          <table className="w-full text-left border-collapse min-w-[900px] table-fixed">
             <thead>
-              <tr className="text-zinc-500 text-[13px] font-bold border-b border-[#22283D]">
-                <th className="pb-4 px-3 w-[12%] font-bold">Mã số</th>
-                <th className="pb-4 px-3 w-[28%] font-bold">Tên khóa học</th>
-                <th className="pb-4 px-3 w-[32%] font-bold">Giá</th>
-                <th className="pb-4 px-3 w-[32%] font-bold">Mô tả chi tiết</th>
-                <th className="pb-4 px-3 w-[10%] font-bold text-center">Ảnh đại diện</th>
-                <th className="pb-4 px-3 w-[10%] font-bold text-center">Ngày tạo</th>
-                <th className="pb-4 px-3 w-[8%] font-bold text-center">Thao tác</th>
+              <tr className="text-zinc-400 text-xs font-semibold border-b border-[#22283D]/80 uppercase tracking-wider">
+                <th className="pb-3 px-3 w-[10%] font-semibold">Mã số</th>
+                <th className="pb-3 px-3 w-[25%] font-semibold">Tên khóa học</th>
+                <th className="pb-3 px-3 w-[15%] font-semibold">Giá bán</th>
+                <th className="pb-3 px-3 w-[28%] font-semibold">Mô tả chi tiết</th>
+                <th className="pb-3 px-3 w-[12%] font-semibold text-center">Ảnh đại diện</th>
+                <th className="pb-3 px-3 w-[12%] font-semibold text-center">Ngày tạo</th>
+                <th className="pb-3 px-3 w-[10%] font-semibold text-center">Thao tác</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-[#1F263E]/40 text-[13.5px]">
-              {/* THAY THẾ tableData BẰNG currentData ĐỂ PHÂN TRANG */}
+            <tbody className="divide-y divide-[#1F263E]/30 text-[13px]">
               {currentData.map((row) => (
-                <tr key={row.id} className="hover:bg-[#1E253A]/30 transition group">
+                <tr key={row.id} className="hover:bg-[#1E253A]/40 transition duration-150 group">
 
                   {/* ID */}
-                  <td className="py-4 px-3 text-zinc-400 font-mono text-xs">
-                    {row.id.substring(0, 8)}...
+                  <td className="py-3.5 px-3 text-zinc-500 font-mono text-xs truncate">
+                    #{row.id.substring(0, 8)}
                   </td>
 
                   {/* TITLE */}
-                  <td className="py-4 px-3 font-semibold text-zinc-100 max-w-[200px] truncate" title={row.title}>
+                  <td className="py-3.5 px-3 font-medium text-zinc-200 truncate" title={row.title}>
                     {row.title}
                   </td>
+                  
                   {/* PRICE */}
-
-                  <td className="py-4 px-3 font-bold text-zinc-100">
+                  <td className="py-3.5 px-3 font-semibold text-zinc-100">
                     {row.price > 0
                       ? `${row.price.toLocaleString("vi-VN")}đ`
-                      : <span className="text-green-500">MIỄN PHÍ</span>
+                      : <span className="text-emerald-400 font-medium bg-emerald-500/10 px-2 py-0.5 rounded text-xs">MIỄN PHÍ</span>
                     }
                   </td>
+                  
                   {/* DESCRIPTION */}
-                  <td className="py-4 px-3 text-zinc-400 max-w-[250px] truncate font-medium" title={row.description || ""}>
+                  <td className="py-3.5 px-3 text-zinc-400 truncate" title={row.description || ""}>
                     {row.description || <span className="text-zinc-600 italic text-xs">Chưa có mô tả</span>}
                   </td>
 
                   {/* THUMBNAIL */}
-                  <td className="py-4 px-3 text-center">
+                  <td className="py-3.5 px-3 text-center">
                     <div className="flex justify-center">
                       {row.thumbnail ? (
                         <img
                           src={row.thumbnail}
                           alt={row.title}
-                          className="w-9 h-9 object-cover rounded-lg border border-[#2B3454]/40 bg-[#121624]"
+                          className="w-10 h-6 object-cover rounded border border-[#2B3454]/60 bg-[#121624] shadow-sm"
                         />
                       ) : (
                         <span className="text-zinc-600 text-xs italic font-medium">—</span>
@@ -324,13 +327,13 @@ export default function DashboardPage() {
                   </td>
 
                   {/* CREATED AT */}
-                  <td className="py-4 px-3 text-center text-zinc-400 text-xs font-mono">
-                    {row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "—"}
+                  <td className="py-3.5 px-3 text-center text-zinc-400 text-xs font-mono">
+                    {row.createdAt ? new Date(row.createdAt).toLocaleDateString("vi-VN") : "—"}
                   </td>
 
                   {/* ACTIONS BUTTONS */}
-                  <td className="py-4 px-3">
-                    <div className="flex items-center justify-center gap-2">
+                  <td className="py-3.5 px-3">
+                    <div className="flex items-center justify-center gap-1.5">
 
                       {/* Nút Sửa */}
                       <button
@@ -372,13 +375,12 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* PAGINATION PANEL (ĐÃ THAY LOGIC ĐỘNG) */}
+        {/* PAGINATION PANEL */}
         <div className="flex items-center justify-between pt-4 border-t border-[#22283D] text-xs text-zinc-400 px-1">
           <div>
             Showing <span className="text-white font-medium">{tableData.length === 0 ? 0 : indexOfFirstItem + 1}-{Math.min(indexOfLastItem, tableData.length)}</span> of <span className="text-white font-medium">{tableData.length}</span> items
           </div>
           <div className="flex items-center gap-1.5 font-semibold">
-            {/* Nút lùi trang */}
             <button
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
@@ -387,7 +389,6 @@ export default function DashboardPage() {
               ‹
             </button>
 
-            {/* Render danh sách số trang động */}
             {Array.from({ length: totalPages }, (_, idx) => {
               const pageNum = idx + 1;
               return (
@@ -404,7 +405,6 @@ export default function DashboardPage() {
               );
             })}
 
-            {/* Nút tiến trang */}
             <button
               onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
@@ -420,10 +420,11 @@ export default function DashboardPage() {
       {/* ================= MODAL CREATE / UPDATE FORM ================= */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/70 flex justify-center items-center z-50 p-4 animate-fadeIn">
-          <div className="bg-[#171B2A] border border-[#2B3454] w-full max-w-md overflow-hidden rounded-2xl flex flex-col shadow-2xl">
+          {/* fix-modal-height: Đặt chiều cao tối đa cho modal bằng 85% view màn hình, sắp xếp dạng cột dọc */}
+          <div className="bg-[#171B2A] border border-[#2B3454] w-full max-w-md max-h-[85vh] overflow-hidden rounded-2xl flex flex-col shadow-2xl">
 
-            {/* MODAL HEADER */}
-            <div className="flex justify-between items-center p-5 border-b border-[#22283D] bg-[#141929]/50">
+            {/* MODAL HEADER (CỐ ĐỊNH) */}
+            <div className="flex justify-between items-center p-5 border-b border-[#22283D] bg-[#141929]/50 shrink-0">
               <h2 className="text-base font-bold text-white">
                 {editingId ? " Cập nhật thông tin khóa học" : " Tạo khóa học mới"}
               </h2>
@@ -436,8 +437,8 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            {/* MODAL FORM CONTENT */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
+            {/* MODAL FORM CONTENT (NỘI DUNG TỰ CUỘN KHI QUÁ DÀI) */}
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4 text-xs">
 
               {/* FIELD: TITLE */}
               <div className="space-y-1.5">
@@ -449,6 +450,20 @@ export default function DashboardPage() {
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
                   placeholder="Nhập tiêu đề khóa học..."
                   className="w-full bg-[#121624] border border-[#2B3454] rounded-xl px-3.5 py-2.5 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-[#0066FF] transition"
+                />
+              </div>
+
+              {/* FIELD: PRICE (ẨN NÚT LÊN XUỐNG BẰNG LỚP no-spinners) */}
+              <div className="space-y-1.5">
+                <label className="text-zinc-400 font-bold uppercase tracking-wider text-[10px]">Giá khóa học (đ)*</label>
+                <input
+                  type="number"
+                  required
+                  min={0}
+                  value={form.price}
+                  onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
+                  placeholder="Nhập giá khóa học (0 nếu miễn phí)..."
+                  className="w-full bg-[#121624] border border-[#2B3454] rounded-xl px-3.5 py-2.5 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-[#0066FF] transition no-spinners"
                 />
               </div>
 
@@ -494,8 +509,8 @@ export default function DashboardPage() {
                 )}
               </div>
 
-              {/* ACTION FOOTER BUTTONS */}
-              <div className="flex justify-end gap-2 pt-3 border-t border-[#22283D] mt-5">
+              {/* ACTION FOOTER BUTTONS (CỐ ĐỊNH Ở ĐÁY FORM) */}
+              <div className="flex justify-end gap-2 pt-4 border-t border-[#22283D] shrink-0">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
@@ -539,6 +554,15 @@ export default function DashboardPage() {
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: #0066FF;
+        }
+        /* CSS XÓA NÚT MŨI TÊN TĂNG GIẢM TRÊN INPUT NUMBER */
+        .no-spinners::-webkit-outer-spin-button,
+        .no-spinners::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        .no-spinners {
+          -moz-appearance: textfield;
         }
         @keyframes fadeIn {
           from { opacity: 0; }
