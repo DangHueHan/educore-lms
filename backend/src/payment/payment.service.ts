@@ -17,7 +17,7 @@ export class PaymentService {
 
   constructor(
     private prisma: PrismaService
-  ){
+  ) {
 
     this.vnpay = new VNPay({
 
@@ -28,7 +28,7 @@ export class PaymentService {
       vnpayHost:
         "https://sandbox.vnpayment.vn",
 
-      testMode:true,
+      testMode: true,
 
       hashAlgorithm:
         HashAlgorithm.SHA512,
@@ -45,20 +45,20 @@ export class PaymentService {
 
 
   async createPayment(
-    userId:string,
-    courseId:string
-  ){
+    userId: string,
+    courseId: string
+  ) {
 
 
     const course =
       await this.prisma.course.findUnique({
-        where:{
-          id:courseId
+        where: {
+          id: courseId
         }
       });
 
 
-    if(!course){
+    if (!course) {
       throw new Error("Course not found");
     }
 
@@ -66,19 +66,19 @@ export class PaymentService {
 
     const existed =
       await this.prisma.payment.findFirst({
-        where:{
+        where: {
           userId,
           courseId,
-          status:"SUCCESS"
+          status: "SUCCESS"
         }
       });
 
 
 
-    if(existed){
+    if (existed) {
 
       return {
-        message:"Already paid"
+        message: "Already paid"
       };
 
     }
@@ -86,43 +86,26 @@ export class PaymentService {
 
 
 
-    // const payment =
-    //   await this.prisma.payment.create({
-
-    //     data:{
-
-    //       userId,
-
-    //       courseId,
-
-    //       amount:
-    //         course.price,
-
-    //       status:"PENDING"
-
-    //     }
-
-    //   });
     const payment =
-  await this.prisma.payment.create({
+      await this.prisma.payment.create({
 
-    data:{
+        data: {
 
-      userId,
+          userId,
 
-      courseId,
+          courseId,
 
-      originalAmount: course.price,
+          originalAmount: course.price,
 
-      discountAmount: 0,
+          discountAmount: 0,
 
-      amount: course.price,
+          amount: course.price,
 
-      status:"PENDING"
+          status: "PENDING"
 
-    }
+        }
 
-  });
+      });
 
 
 
@@ -154,8 +137,8 @@ export class PaymentService {
           Number(
             new Date()
               .toISOString()
-              .replace(/\D/g,'')
-              .slice(0,14)
+              .replace(/\D/g, '')
+              .slice(0, 14)
           )
 
       });
@@ -174,7 +157,7 @@ export class PaymentService {
 
 
 
-  async verifyPayment(query:any){
+  async verifyPayment(query: any) {
 
 
     const verify =
@@ -182,10 +165,10 @@ export class PaymentService {
 
 
 
-    if(!verify.isVerified){
+    if (!verify.isVerified) {
 
       return {
-        success:false
+        success: false
       };
 
     }
@@ -196,18 +179,19 @@ export class PaymentService {
     const payment =
       await this.prisma.payment.update({
 
-        where:{
-          id:
-          query.vnp_TxnRef
+        where: {
+          id: query.vnp_TxnRef
         },
 
+        data: {
 
-        data:{
-
-          status:"SUCCESS",
-
+          status: "SUCCESS",
+          method: "VNPAY",
           transactionNo:
-            query.vnp_TransactionNo
+            query.vnp_TransactionNo,
+
+          paidAt:
+            new Date()
 
         }
 
@@ -219,9 +203,9 @@ export class PaymentService {
 
     await this.prisma.enrollment.upsert({
 
-      where:{
+      where: {
 
-        userId_courseId:{
+        userId_courseId: {
 
           userId:
             payment.userId,
@@ -234,10 +218,10 @@ export class PaymentService {
       },
 
 
-      update:{},
+      update: {},
 
 
-      create:{
+      create: {
 
         userId:
           payment.userId,
@@ -254,11 +238,47 @@ export class PaymentService {
 
 
     return {
-      success:true
+      success: true
     };
 
 
   }
 
+  async myPayments(userId: string) {
+
+    return this.prisma.payment.findMany({
+
+      where: {
+        userId,
+        status: "SUCCESS",
+      },
+
+      include: {
+
+        course: {
+          select: {
+            id: true,
+            title: true,
+            thumbnail: true,
+            price: true,
+          },
+        },
+
+        refundRequests: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 1,
+        },
+
+      },
+
+      orderBy: {
+        createdAt: "desc",
+      },
+
+    });
+
+  }
 
 }

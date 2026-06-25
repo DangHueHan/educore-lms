@@ -756,7 +756,7 @@ async function main() {
     }
   }
 
-  // ================= 5. KHỚP MỚI: ĐỔ DỮ LIỆU ĐÚNG SCHEMA CHO PAYMENT
+  // ================= 5. KHỚP MỚI: ĐỔ DỮ LIỆU ĐÚNG SCHEMA CHO PAYMENT & REFUNDREQUEST
   await prisma.payment.createMany({
     data: [
       { 
@@ -780,7 +780,7 @@ async function main() {
         discountAmount: 0,
         amount: 799000, 
         method: 'STRIPE',
-        status: 'SUCCESS', 
+        status: 'SUCCESS', // Giao dịch thành công nhưng đang có 1 request refund chờ duyệt
         transactionNo: 'TXN-STRIPE-88123',
         couponCode: null,
         paidAt: new Date()
@@ -793,11 +793,31 @@ async function main() {
         discountAmount: 0,
         amount: 299000, 
         method: 'MOMO',
-        status: 'SUCCESS', 
+        status: 'REFUNDED', // Giả định trạng thái payment đổi thành hoàn tiền sau khi APPROVED
         transactionNo: 'TXN-MOMO-77124',
         couponCode: null,
         paidAt: new Date()
       },
+    ]
+  });
+
+  // Seed dữ liệu cho bảng RefundRequest mới
+  await prisma.refundRequest.createMany({
+    data: [
+      {
+        id: 'rf-1',
+        paymentId: 'pay-2', // Request của pay-2
+        reason: 'Mua nhầm khóa học, muốn đổi sang khóa khác',
+        status: 'PENDING', // Đang chờ admin duyệt
+        adminNote: null
+      },
+      {
+        id: 'rf-2',
+        paymentId: 'pay-3', // Request của pay-3
+        reason: 'Nội dung khóa học không đúng như kỳ vọng',
+        status: 'APPROVED', // Đã duyệt hoàn tiền
+        adminNote: 'Đã hoàn tiền qua ví MoMo cho học viên ngày 2026-06-23'
+      }
     ]
   });
 
@@ -810,7 +830,7 @@ async function main() {
     ]
   });
 
-  console.log('🌱 Seeding completed! ');
+  console.log('🌱 Seeding completed!');
 }
 
 main()

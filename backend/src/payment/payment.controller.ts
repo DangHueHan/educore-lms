@@ -13,13 +13,13 @@ import type { Response } from "express";
 
 import { PaymentService } from "./payment.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
-
+import { CurrentUser } from "../auth/decorators/current-user.decorator";
 @Controller("payment")
 export class PaymentController {
 
   constructor(
     private paymentService: PaymentService
-  ) {}
+  ) { }
 
   @UseGuards(JwtAuthGuard)
   @Post("create")
@@ -62,6 +62,15 @@ export class PaymentController {
       "http://localhost:3000/user/payment-failed"
     );
 
+  }
+  @UseGuards(JwtAuthGuard)
+  @Get("my")
+  myPayments(
+    @CurrentUser() user: any,
+  ) {
+    return this.paymentService.myPayments(
+      user.id,
+    );
   }
 
 }

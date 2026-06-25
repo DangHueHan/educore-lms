@@ -52,6 +52,9 @@ import { CouponService } from './coupon/coupon.service';
 import { PaymentManagementController } from './payment-management/payment-management.controller';
 import { PaymentManagementService } from './payment-management/payment-management.service';
 
+import { RefundRequestController } from './refund-request/refund-request.controller';
+import { RefundRequestService } from './refund-request/refund-request.service';
+
 import { UploadController } from './upload/upload.controller';
 
 import { PrismaService } from '../prisma/prisma.service';
@@ -83,6 +86,7 @@ import { PrismaService } from '../prisma/prisma.service';
     PaymentController,
     CouponController,
     PaymentManagementController,
+    RefundRequestController,
   ],
 
   providers: [
@@ -103,6 +107,7 @@ import { PrismaService } from '../prisma/prisma.service';
     PaymentService,
     CouponService,
     PaymentManagementService,
+    RefundRequestService,
   ],
 })
 export class AppModule { }
