@@ -17,78 +17,78 @@ import {
 export class CouponService {
 
 
-constructor(
-  private prisma:PrismaService,
-){}
+  constructor(
+    private prisma: PrismaService,
+  ) { }
 
 
 
 
-create(dto:CouponDto){
+  create(dto: CouponDto) {
 
 
-return this.prisma.coupon.create({
+    return this.prisma.coupon.create({
 
-data:{
+      data: {
 
-code:dto.code,
+        code: dto.code,
 
-discountPercent:dto.discountPercent,
+        discountPercent: dto.discountPercent,
 
-quantity:dto.quantity,
+        quantity: dto.quantity,
 
-isActive:dto.isActive ?? true,
+        isActive: dto.isActive ?? true,
 
-startDate:new Date(dto.startDate),
+        startDate: new Date(dto.startDate),
 
-endDate:new Date(dto.endDate),
+        endDate: new Date(dto.endDate),
 
-}
+      }
 
-});
+    });
 
 
-}
+  }
 
 
 
 
 
-findAll(){
+  findAll() {
 
 
-return this.prisma.coupon.findMany({
+    return this.prisma.coupon.findMany({
 
-where:{
+      where: {
 
-isDeleted:false,
+        isDeleted: false,
 
-},
+      },
 
-include:{
+      include: {
 
-_count:{
+        _count: {
 
-select:{
+          select: {
 
-courseCoupons:true
+            courseCoupons: true
 
-}
+          }
 
-}
+        }
 
-},
+      },
 
-orderBy:{
+      orderBy: {
 
-createdAt:'desc'
+        createdAt: 'desc'
 
-}
+      }
 
-});
+    });
 
 
-}
+  }
 
 
 
@@ -96,37 +96,37 @@ createdAt:'desc'
 
 
 
-async findOne(id:string){
+  async findOne(id: string) {
 
 
-const coupon =
-await this.prisma.coupon.findFirst({
+    const coupon =
+      await this.prisma.coupon.findFirst({
 
-where:{
+        where: {
 
-id,
+          id,
 
-isDeleted:false
+          isDeleted: false
 
-}
+        }
 
-});
+      });
 
 
 
-if(!coupon){
+    if (!coupon) {
 
-throw new NotFoundException(
-'Coupon not found'
-);
+      throw new NotFoundException(
+        'Coupon not found'
+      );
 
-}
+    }
 
 
 
-return coupon;
+    return coupon;
 
-}
+  }
 
 
 
@@ -135,44 +135,44 @@ return coupon;
 
 
 
-async update(
-id:string,
-dto:CouponDto
-){
+  async update(
+    id: string,
+    dto: CouponDto
+  ) {
 
 
-await this.findOne(id);
+    await this.findOne(id);
 
 
 
-return this.prisma.coupon.update({
+    return this.prisma.coupon.update({
 
-where:{
-id,
-},
+      where: {
+        id,
+      },
 
 
-data:{
+      data: {
 
-code:dto.code,
+        code: dto.code,
 
-discountPercent:dto.discountPercent,
+        discountPercent: dto.discountPercent,
 
-quantity:dto.quantity,
+        quantity: dto.quantity,
 
-isActive:dto.isActive,
+        isActive: dto.isActive,
 
-startDate:new Date(dto.startDate),
+        startDate: new Date(dto.startDate),
 
-endDate:new Date(dto.endDate),
+        endDate: new Date(dto.endDate),
 
-}
+      }
 
 
-});
+    });
 
 
-}
+  }
 
 
 
@@ -181,32 +181,32 @@ endDate:new Date(dto.endDate),
 
 
 
-async remove(id:string){
+  async remove(id: string) {
 
 
-await this.findOne(id);
+    await this.findOne(id);
 
 
 
-return this.prisma.coupon.update({
+    return this.prisma.coupon.update({
 
-where:{
-id
-},
+      where: {
+        id
+      },
 
 
-data:{
+      data: {
 
-isDeleted:true,
+        isDeleted: true,
 
-deletedAt:new Date(),
+        deletedAt: new Date(),
 
-}
+      }
 
-});
+    });
 
 
-}
+  }
 
 
 
@@ -216,45 +216,45 @@ deletedAt:new Date(),
 
 
 
-// =======================
-// LẤY KHÓA HỌC CỦA COUPON
-// =======================
+  // =======================
+  // LẤY KHÓA HỌC CỦA COUPON
+  // =======================
 
-async getCourses(
-couponId:string
-){
+  async getCourses(
+    couponId: string
+  ) {
 
 
-await this.findOne(couponId);
+    await this.findOne(couponId);
 
 
 
-const data =
-await this.prisma.courseCoupon.findMany({
+    const data =
+      await this.prisma.courseCoupon.findMany({
 
-where:{
+        where: {
 
-couponId
+          couponId
 
-},
+        },
 
 
-include:{
+        include: {
 
-course:true
+          course: true
 
-}
+        }
 
-});
+      });
 
 
 
-return data.map(
-(item)=>item.course
-);
+    return data.map(
+      (item) => item.course
+    );
 
 
-}
+  }
 
 
 
@@ -264,78 +264,78 @@ return data.map(
 
 
 
-// =======================
-// ÁP DỤNG KHÓA HỌC
-// =======================
+  // =======================
+  // ÁP DỤNG KHÓA HỌC
+  // =======================
 
-async assignCourses(
+  async assignCourses(
 
-couponId:string,
+    couponId: string,
 
-courseIds:string[]
+    courseIds: string[]
 
-){
+  ) {
 
 
 
-await this.findOne(couponId);
+    await this.findOne(couponId);
 
 
 
 
-// xóa liên kết cũ
+    // xóa liên kết cũ
 
-await this.prisma.courseCoupon.deleteMany({
+    await this.prisma.courseCoupon.deleteMany({
 
-where:{
+      where: {
 
-couponId
+        couponId
 
-}
+      }
 
-});
+    });
 
 
 
 
-// tạo liên kết mới
+    // tạo liên kết mới
 
-if(courseIds.length){
+    if (courseIds.length) {
 
 
-await this.prisma.courseCoupon.createMany({
+      await this.prisma.courseCoupon.createMany({
 
-data:
+        data:
 
-courseIds.map(
-(courseId)=>({
+          courseIds.map(
+            (courseId) => ({
 
-courseId,
+              courseId,
 
-couponId
+              couponId
 
-})
+            })
 
-)
+          )
 
 
-});
+      });
 
 
-}
+    }
 
 
 
 
-return {
+    return {
 
-message:
-"Áp dụng khóa học thành công"
+      message:
+        "Áp dụng khóa học thành công"
 
-};
+    };
 
 
-}
+  }
 
 
 
