@@ -29,6 +29,19 @@ export default async function CourseDetailPage({
   }
 
   const course = await res.json();
+
+  const discount = course.courseCoupons?.[0]?.coupon
+    ? {
+      percent: course.courseCoupons[0].coupon.discountPercent,
+      oldPrice: course.price,
+      newPrice:
+        course.price -
+        (course.price *
+          course.courseCoupons[0].coupon.discountPercent) /
+        100,
+    }
+    : null;
+
   //moi them
   let hasUser = false;
 
@@ -38,7 +51,7 @@ export default async function CourseDetailPage({
 
   let lastLessonTitle = "";
 
-  
+
   const cookieStore = await cookies();
 
   const token = cookieStore.get("token");
@@ -292,7 +305,7 @@ export default async function CourseDetailPage({
                       </div>
                     ))}
 
-                   
+
 
 
                     {
@@ -450,7 +463,37 @@ export default async function CourseDetailPage({
 
                     <div className="w-full text-center space-y-4 px-2">
                       <p className="text-[13px] text-gray-500 font-bold uppercase tracking-widest">Chi phí khóa học</p>
-                      <p className="text-[38px] font-black text-[#1d4ed8]">Miễn phí</p>
+                      {
+                        course.price === 0 ? (
+
+                          <p className="text-[38px] font-black text-[#1d4ed8]">
+                            Miễn phí
+                          </p>
+
+                        ) : discount ? (
+
+                          <div className="flex items-center justify-center gap-2 flex-wrap">
+                            <span className="text-gray-400 line-through text-base">
+                              {discount.oldPrice.toLocaleString("vi-VN")}đ
+                            </span>
+
+                            <span className="text-2xl font-black text-red-500">
+                              {discount.newPrice.toLocaleString("vi-VN")}đ
+                            </span>
+
+                            <span className="bg-red-100 text-red-600 text-xs font-bold px-2 py-1 rounded-full">
+                              -{discount.percent}%
+                            </span>
+                          </div>
+
+                        ) : (
+
+                          <p className="text-[38px] font-black text-[#1d4ed8]">
+                            {course.price.toLocaleString("vi-VN")}đ
+                          </p>
+
+                        )
+                      }
 
                       {
                         !enrolled && (

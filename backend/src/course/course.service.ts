@@ -12,21 +12,40 @@ export class CourseService {
     });
   }
 
+
   findAll() {
-    return this.prisma.course.findMany({
-      where: { isDeleted: false },
-      orderBy: { createdAt: 'desc' },
-    });
-  }
 
-  // async findOne(id: string) {
-  //   const course = await this.prisma.course.findFirst({
-  //     where: { id, isDeleted: false },
-  //   });
+  return this.prisma.course.findMany({
 
-  //   if (!course) throw new NotFoundException('Course not found');
-  //   return course;
-  // }
+    where: {
+      isDeleted: false,
+    },
+
+
+    include: {
+
+      courseCoupons: {
+
+        include: {
+
+          coupon: true
+
+        }
+
+      }
+
+    },
+
+
+    orderBy: {
+      createdAt: 'desc',
+    },
+
+  });
+
+}
+
+ 
   async findOne(id: string) {
   const course = await this.prisma.course.findFirst({
     where: {
@@ -57,6 +76,13 @@ export class CourseService {
       answers: true,
     },
   },
+
+  courseCoupons: {
+    include: {
+      coupon: true,
+    },
+  },
+  
 }
   });
 

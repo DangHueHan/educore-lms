@@ -2,16 +2,34 @@
 import React, { useEffect, useState } from "react";
 import { BannerParticles } from "../BannerParticles";
 import Link from "next/link";
-
+import { Users, Clock, Star, Tag, Crown } from 'lucide-react';
 const BASE_URL = "http://localhost:3001";
 
-type Course = {
-  id: string;
-  title: string;
-  description?: string;
-  thumbnail?: string;
-};
 
+
+type Course = {
+
+  id: string;
+
+  title: string;
+
+  description?: string;
+
+  thumbnail?: string;
+
+  price: number;
+
+  courseCoupons?: {
+
+    coupon: {
+
+      discountPercent: number;
+
+    }
+
+  }[];
+
+};
 
 
 const LINES = ["Vững kỹ năng.", "Chắc tương lai."];
@@ -65,35 +83,79 @@ function useTypewriter(lines: string[], speed = 55, pauseMs = 820) {
 }
 export default function App() {
 
-const [courses, setCourses] = useState<Course[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
 
-useEffect(() => {
-  fetchCourses();
-}, []);
+  useEffect(() => {
+    fetchCourses();
+  }, []);
 
-async function fetchCourses() {
-  const res = await fetch(`${BASE_URL}/courses`);
-  const data = await res.json();
+  async function fetchCourses() {
+    const res = await fetch(`${BASE_URL}/courses`);
+    const data = await res.json();
 
-  setCourses(Array.isArray(data) ? data : []);
-}
-const [showAll, setShowAll] = useState(false);
-const visibleCourses = showAll
-  ? courses
-  : courses.slice(0, 4);
+    setCourses(Array.isArray(data) ? data : []);
+  }
 
-const remainingCourses = courses.length - 4;
+  function getDiscount(course: Course) {
+
+    const coupon =
+      course.courseCoupons?.[0]?.coupon;
 
 
-   const { displayed, done } = useTypewriter(LINES);
+    if (!coupon) {
+      return null;
+    }
+
+
+    const discount =
+      course.price *
+      coupon.discountPercent /
+      100;
+
+
+    return {
+
+      percent:
+        coupon.discountPercent,
+
+      oldPrice:
+        course.price,
+
+      newPrice:
+        course.price - discount
+
+    };
+
+  }
+
+
+  const [showAll, setShowAll] = useState(false);
+  const visibleCourses = showAll
+    ? courses
+    : courses.slice(0, 4);
+
+  const remainingCourses = courses.length - 4;
+
+  const freeCourses =
+    courses.filter(
+      (course) => course.price === 0
+    );
+
+  const advancedCourses =
+    courses.filter(
+      (course) => course.price > 0
+    );
+
+  
+  const { displayed, done } = useTypewriter(LINES);
   return (
     <div className="min-h-screen bg-white">
       {/* ========================================== */}
       {/* 1. THANH ĐIỀU HƯỚNG (NAVIGATION)         */}
       {/* ========================================== */}
-      
 
-       {/* ========================================== */}
+
+      {/* ========================================== */}
       {/* 2. KHU VỰC BANNER CHÍNH (HEADER / HERO)   */}
       {/* ========================================== */}
       <style>{`
@@ -232,144 +294,147 @@ const remainingCourses = courses.length - 4;
 {/* 1. SECTION: DÀNH CHO BẠN */}
 {/* ========================= */}
 <section className="w-full max-w-[1300px] mx-auto px-6 md:px-12 py-16">
-  <h2 className="text-3xl font-bold text-slate-900 mb-10">
-    Dành cho bạn
-  </h2>
-
+  <h2 className="text-3xl font-bold text-slate-900 mb-10">Dành cho bạn</h2>
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    
     {visibleCourses.map((course) => (
-      <div
-        key={course.id}
-        className="bg-white border border-gray-100 rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300 group"
-      >
+      <div key={course.id} className="bg-white border border-gray-100 rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300 group">
         <div className="relative h-52">
-          <img
-            src={
-              course.thumbnail ||
-              "https://placehold.co/600x400?text=EduCore"
-            }
-            alt={course.title}
-            className="w-full h-full object-cover"
-          />
-
+          <img src={course.thumbnail || "https://placehold.co/600x400?text=EduCore"} alt={course.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
         </div>
-
         <div className="p-6">
           <div className="font-semibold text-xl">
-            <Link href={`/user/courseDetail/${course.id}`}>
-              {course.title}
-            </Link>
+            <Link href={`/user/courseDetail/${course.id}`}>{course.title}</Link>
           </div>
-
-          <p className="text-gray-500 text-sm mt-2 line-clamp-2 min-h-[40px]">
-            {course.description}
-          </p>
-
-          <span className="text-blue-600 font-bold text-xl block mt-4">
-            Miễn phí
-          </span>
-<div className="flex items-center gap-2 mt-5 text-sm text-gray-500">
-          <span className="text-xl">☆☆☆☆☆</span>
-          <span>Chưa có đánh giá</span>
-        </div>
-        <div className="flex justify-between mt-6 text-sm text-gray-600">
-          <div>👥 210</div>
-          <div>🕒 2h21p</div>
-        </div>
+          <p className="text-gray-500 text-sm mt-2 line-clamp-2 min-h-[40px]">{course.description}</p>
+          <div className="mt-4">
+            {course.price === 0 ? (
+              <span className="text-blue-600 font-bold text-xl">Miễn phí</span>
+            ) : (() => {
+              const discount = getDiscount(course);
+              return (
+                <div>
+                  {discount ? (
+                    <>
+                      <span className="line-through text-gray-400 text-sm">{discount.oldPrice.toLocaleString()}đ</span>
+                      <span className="text-red-500 font-bold text-xl ml-2">{discount.newPrice.toLocaleString()}đ</span>
+                      <span className="ml-2 bg-red-100 text-red-600 text-[10px] px-2 py-1 rounded-full font-bold">-{discount.percent}%</span>
+                    </>
+                  ) : (
+                    <span className="text-blue-600 font-bold text-xl">{course.price.toLocaleString()}đ</span>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+          <div className="flex items-center gap-1.5 mt-5 text-sm text-gray-500">
+             <div className="flex text-yellow-400"><Star size={16} fill="currentColor"/></div>
+             <span>Chưa có đánh giá</span>
+          </div>
+          <div className="flex justify-between mt-6 text-sm text-gray-600">
+            <div className="flex items-center gap-1"><Users size={16}/> 210</div>
+            <div className="flex items-center gap-1"><Clock size={16}/> 2h21p</div>
+          </div>
         </div>
       </div>
     ))}
   </div>
-
-{!showAll && remainingCourses > 0 && (
-  <div className="text-center mt-12">
-    <button
-      onClick={() => setShowAll(true)}
-      className="px-8 py-3.5 rounded-full border-2 border-blue-600 text-blue-600 font-semibold hover:bg-blue-600 hover:text-white transition-all"
-    >
-      Xem thêm {remainingCourses} khóa học
-    </button>
-  </div>
-)}
+  {!showAll && remainingCourses > 0 && (
+    <div className="text-center mt-12">
+      <button onClick={() => setShowAll(true)} className="px-8 py-3.5 rounded-full border-2 border-blue-600 text-blue-600 font-semibold hover:bg-blue-600 hover:text-white transition-all">
+        Xem thêm {remainingCourses} khóa học
+      </button>
+    </div>
+  )}
 </section>
+
 {/* ============================= */}
 {/* 2. SECTION: KHÓA HỌC FREE */}
 {/* ============================= */}
 <section className="w-full bg-slate-50 py-16">
   <div className="max-w-[1300px] mx-auto px-6 md:px-12">
-    <h2 className="text-3xl font-bold text-slate-900 mb-10">
-      Khóa học Free <span className="bg-blue-600 text-white text-sm px-4 py-1 rounded-full font-medium">HOT</span>
-    </h2>
-   
+    <h2 className="text-3xl font-bold text-slate-900 mb-10">Khóa học Free <span className="bg-blue-600 text-white text-sm px-4 py-1 rounded-full font-medium">HOT</span></h2>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {/* Card C++ */}
-      <div className="bg-white border border-gray-100 rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300 group">
-        <div className="relative h-52">
-          <img
-            src="https://files.f8.edu.vn/f8-prod/courses/21/63e1bcbaed1dd.png"
-            alt="C++"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
-        </div>
-        <div className="p-6">
-          <div className="font-semibold text-xl">Lập trình C++ cơ bản, nâng cao</div>
-          <span className="text-blue-600 font-bold text-xl block mt-4">Miễn phí</span>
-          <div className="flex items-center gap-1 mt-5">
-            <span className="text-yellow-400 text-2xl">★★★★☆</span>
-            <span className="font-medium text-sm">4.6 (200)</span>
+      {freeCourses.map((course) => (
+        <div key={course.id} className="bg-white border border-gray-100 rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300">
+          <div className="relative h-52">
+            <img src={course.thumbnail || "https://placehold.co/600x400?text=EduCore"} alt={course.title} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
           </div>
-          <div className="flex justify-between text-sm mt-6 text-gray-600">
-            <div>👥 39,974</div>
-            <div>🕒 10h18p</div>
+          <div className="p-6">
+            <div className="font-semibold text-xl"><Link href={`/user/courseDetail/${course.id}`}>{course.title}</Link></div>
+            <span className="text-blue-600 font-bold text-xl block mt-4">Miễn phí</span>
+            <div className="flex items-center gap-1.5 mt-5">
+              <div className="flex text-yellow-400"><Star size={16} fill="currentColor"/></div>
+              <span className="font-medium text-sm text-gray-500">Chưa có đánh giá</span>
+            </div>
+            <div className="flex justify-between text-sm mt-6 text-gray-600">
+              <div className="flex items-center gap-1"><Users size={16}/> 0</div>
+              <div className="flex items-center gap-1"><Clock size={16}/> 0h</div>
+            </div>
           </div>
         </div>
-      </div>
+      ))}
     </div>
   </div>
 </section>
 
 {/* ========================= */}
-{/* 3. SECTION: VIDEOS NỔI BẬT */}
+{/* 3. SECTION: KHÓA HỌC NÂNG CAO */}
 {/* ========================= */}
 <section className="w-full max-w-[1300px] mx-auto px-6 md:px-12 py-16">
   <div className="flex justify-between items-end mb-10">
-    <h2 className="text-3xl font-bold text-slate-900">Videos nổi bật</h2>
-    <a href="#" className="text-blue-600 font-medium hover:underline flex items-center gap-1">
-      Xem tất cả →
-    </a>
+    <h2 className="text-3xl font-bold text-slate-900">Khóa học nâng cao</h2>
+    <a href="#" className="text-blue-600 font-medium hover:underline flex items-center gap-1">Xem tất cả →</a>
   </div>
- 
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    {/* Video Card 1 */}
-    <div className="bg-white border border-gray-100 rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300 group">
-      <div className="relative">
-        <img
-          src="https://i.ytimg.com/vi/R6plN3FvzFY/maxresdefault.jpg"
-          alt="HTML CSS"
-          className="w-full h-52 object-cover"
-        />
-        <div className="absolute bottom-4 right-4 bg-black/70 text-white text-xs px-3 py-1 rounded-lg">03:15</div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-16 h-16 bg-white/90 backdrop-blur rounded-2xl flex items-center justify-center text-4xl shadow-lg">▶</div>
+    {advancedCourses.map((course) => (
+      <div key={course.id} className="bg-white border border-gray-100 rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300 group">
+        <div className="relative h-52">
+          <img src={course.thumbnail || "https://placehold.co/600x400?text=EduCore"} alt={course.title} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"/>
+
+<div className="absolute top-4 left-4 z-10">
+  <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-black/40 backdrop-blur-sm shadow-lg">
+    {/* Icon vương miện từ thư viện sẽ trông sắc nét và chuyên nghiệp hơn */}
+    <Crown className="w-6 h-6 text-yellow-400" strokeWidth={2.5} />
+  </div>
+</div>
+        </div>
+        <div className="p-6">
+          <Link href={`/user/courseDetail/${course.id}`}>
+            <h3 className="font-semibold text-xl hover:text-blue-600 line-clamp-2">{course.title}</h3>
+          </Link>
+          <p className="text-sm text-gray-500 mt-2 line-clamp-2">{course.description}</p>
+          <div className="mt-4">
+            {(() => {
+              const discount = getDiscount(course);
+              return discount ? (
+                <div>
+                  <span className="text-gray-400 line-through text-sm">{discount.oldPrice.toLocaleString()}đ</span>
+                  <span className="text-red-500 font-bold text-xl ml-2">{discount.newPrice.toLocaleString()}đ</span>
+                  <span className="ml-2 bg-red-100 text-red-600 text-[10px] px-2 py-1 rounded-full font-bold">-{discount.percent}%</span>
+                </div>
+              ) : (
+                <span className="text-blue-600 font-bold text-xl">{course.price.toLocaleString()}đ</span>
+              );
+            })()}
+          </div>
+          <div className="flex items-center gap-1.5 mt-5">
+            <div className="flex text-yellow-400"><Star size={16} fill="currentColor"/></div>
+            <span className="font-medium text-sm text-gray-500">Chưa có đánh giá</span>
+          </div>
+          <div className="flex justify-between text-sm mt-6 text-gray-600">
+            <div className="flex items-center gap-1"><Users size={16}/> Học viên</div>
+            <div className="flex items-center gap-1"><Clock size={16}/> 0h</div>
+          </div>
         </div>
       </div>
-      <div className="p-5">
-        <h3 className="font-semibold line-clamp-2">Bạn sẽ làm được gì sau khóa học?</h3>
-        <p className="text-sm text-gray-500 mt-2">HTML CSS từ Zero đến Hero</p>
-        <div className="flex justify-between text-xs text-gray-500 mt-6">
-          <div>1.144.967</div>
-          <div>💬 149</div>
-        </div>
-      </div>
-    </div>
+    ))}
   </div>
 </section>
 
-      
-   
+
     </div>
   );
 }
