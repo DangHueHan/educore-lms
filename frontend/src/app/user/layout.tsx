@@ -1,77 +1,191 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   Search,
-  Phone,
-  Mail,
-  MapPin,
+  User,
+  BookOpen,
+  Heart,
+  Award,
+  CreditCard,
+  Bell,
+  Settings,
+  LogOut,
 } from "lucide-react";
-import Link from "next/link";
+
+const BASE_URL = "http://localhost:3001";
+
 export default function UserLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  async function getProfile() {
+    try {
+      const res = await fetch(`${BASE_URL}/auth/me`, {
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        setUser(null);
+        return;
+      }
+
+      const data = await res.json();
+      setUser(data);
+    } catch (error) {
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getProfile();
+  }, []);
+
   return (
     <>
-      <header>
-        {/* ========================================== */}
-      {/* 1. THANH ĐIỀU HƯỚNG (NAVIGATION)         */}
-      {/* ========================================== */}
-      <nav className="bg-white border-b border-slate-100 sticky top-0 z-50">
-        <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
-          <div className="flex items-center justify-between h-20">
-            {/* PHẦN BÊN TRÁI: LOGO & MENU LINKS */}
-            <div className="flex items-center gap-12">
-              {/* Logo: Hình vuông màu xanh dương, chữ E màu trắng */}
-              <div className="flex items-center gap-2 cursor-pointer">
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center font-black text-white text-xl">
-                   <Link href="/user/home">E</Link>
+      <header className="bg-white border-b border-slate-100 sticky top-0 z-50">
+        <nav className="max-w-[1400px] mx-auto px-6 lg:px-12 h-20">
+          <div className="grid grid-cols-[1fr_minmax(320px,600px)_1fr] items-center h-full gap-8">
+            {/* Logo */}
+            <div className="flex items-center">
+              <Link href="/user/home" className="flex items-center gap-2">
+                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-xl">
+                  E
                 </div>
-                <span className="text-xl font-bold text-blue-600">
-                  EduCore
-                </span>
-              </div>
-
-              {/* Navigation Links */}
-              <div className="hidden xl:flex items-center gap-8">
-          
-              </div>
+                <span className="text-xl font-bold text-blue-600">EduCore</span>
+              </Link>
             </div>
 
-            {/* PHẦN BÊN PHẢI */}
-            <div className="flex items-center gap-8 flex-1 max-w-3xl justify-end">
-              {/* Ô tìm kiếm */}
-              <div className="relative w-full max-w-md hidden md:block">
-                <span className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-                  <Search
-                    className="h-5 w-5 text-slate-400"
-                    strokeWidth={2.5}
-                  />
-                </span>
+            {/* Search */}
+            <div className="hidden md:block">
+              <div className="relative">
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <input
-                  type="text"
-                  placeholder="Tìm khóa học, bài tập, hỏi đáp..."
-                  className="w-full pl-13 pr-5 py-3.5 bg-[#f8f9fa] border border-[#e9ecef] rounded-full text-[15px] text-slate-700 placeholder-slate-400 focus:outline-none focus:border-slate-300 focus:bg-white transition-all"
+                  placeholder="Tìm khóa học..."
+                  className="w-full pl-13 pr-5 py-3 rounded-full bg-slate-50 border border-slate-200 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all"
                 />
               </div>
-
-              {/* Cụm nút bấm Đăng ký / Đăng nhập (Màu xanh dương) */}
-              <div className="flex items-center gap-5 shrink-0">
-                <button className="text-slate-800 hover:text-blue-600 font-bold text-[15px] transition-colors px-2 py-1">
-                  Đăng ký
-                </button>
-                <button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:opacity-95 text-white font-bold text-[15px] px-7 py-3.5 rounded-full shadow-md shadow-blue-500/10 transition-all">
-                  Đăng nhập
-                </button>
-              </div>
             </div>
+
+            {/* Right */}
+            <div className="flex justify-end">
+              {loading ? null : user ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    className="rounded-full ring-2 ring-transparent hover:ring-blue-500 transition-all"
+                  >
+                    <img
+                      src={
+                        user.avatarUrl ||
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                          user.displayName || "User"
+                        )}&background=2563eb&color=fff`
+                      }
+                      className="w-10 h-10 rounded-full object-cover border"
+                      alt="User avatar"
+                    />
+                  </button>
+
+                {isMenuOpen && (
+  <>
+    {/* Overlay để đóng menu khi click ra ngoài */}
+    <div className="fixed inset-0 z-40" onClick={() => setIsMenuOpen(false)} />
+
+    {/* Menu Container */}
+    <div className="absolute right-0 top-full mt-3 w-72 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.2)] border border-slate-100 z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      {/* 1. Phần Header: Thông tin cá nhân (Có màu phân biệt) */}
+      <div className="px-5 py-4 bg-slate-50 border-b border-slate-100">
+        <div className="flex items-center gap-3">
+          <img
+            src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || "User")}&background=2563eb&color=fff`}
+            className="w-12 h-12 rounded-full border border-white shadow-sm"
+          />
+          <div className="overflow-hidden">
+            <p className="font-bold text-slate-900 truncate">{user.displayName}</p>
+            <p className="text-xs text-slate-500 truncate">{user.email}</p>
           </div>
         </div>
-      </nav>
+      </div>
+
+      {/* 2. Ô TÌM KIẾM (Đã giữ lại theo yêu cầu của mày) */}
+      <div className="p-3 bg-slate-50/50 border-b border-slate-100">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input
+            placeholder="Search..."
+            className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-blue-400 transition-colors"
+          />
+        </div>
+      </div>
+
+    {/* 3. Danh sách Menu (Phần thân - Đã thêm màu cho icon) */}
+<div className="py-1">
+  {[
+    { icon: User, label: "Personal Profile", href: "/user/profile", color: "text-blue-500" },
+    { icon: BookOpen, label: "My Courses", href: "/user/myCourses", color: "text-emerald-500" },
+    { icon: Heart, label: "Favorite Courses", href: "/user/favorite", color: "text-rose-500" },
+    { icon: Award, label: "Certificates", href: "/user/certificate", color: "text-amber-500" },
+    { icon: CreditCard, label: "Payment History", href: "/user/payment-history", color: "text-sky-500" },
+    { icon: Bell, label: "Notifications", href: "/user/notifications", color: "text-violet-500" },
+  ].map((item) => (
+    <Link
+      key={item.label}
+      href={item.href}
+      onClick={() => setIsMenuOpen(false)}
+      className="flex items-center gap-3 px-5 py-3 text-[14px] text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all group"
+    >
+      {/* Icon có màu riêng dựa trên thuộc tính color */}
+      <item.icon size={18} className={`${item.color} group-hover:scale-110 transition-transform`} />
+      {item.label}
+    </Link>
+  ))}
+</div>
+
+      {/* 4. Phần Footer Menu: Cài đặt & Logout (Có màu/đường kẻ phân biệt) */}
+      <div className="border-t border-slate-100 py-1 bg-slate-50/30">
+        <Link
+          href="/user/settings"
+          onClick={() => setIsMenuOpen(false)}
+          className="flex items-center gap-3 px-5 py-3 text-[14px] text-slate-600 hover:bg-slate-50 hover:text-blue-600 transition-all"
+        >
+          <Settings size={18} /> Settings
+        </Link>
+        <button
+          onClick={() => {/* logic logout */}}
+          className="w-full flex items-center gap-3 px-5 py-3 text-[14px] text-red-600 hover:bg-red-50 transition-all"
+        >
+          <LogOut size={18} /> LogOut
+        </button>
+      </div>
+    </div>
+  </>
+)}
+                </div>
+              ) : (
+                <Link
+                  href="/auth"
+                  className="relative inline-flex items-center justify-center px-6 py-2.5 font-semibold text-white bg-blue-600 rounded-full hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/25 transition-all duration-300 transform active:scale-95"
+                >
+                  Đăng nhập
+                </Link>
+              )}
+            </div>
+          </div>
+        </nav>
       </header>
 
-      <main>
-        {children}
-      </main>
+      <main>{children}</main>
+  
 
       
           {/* ========================================== */}

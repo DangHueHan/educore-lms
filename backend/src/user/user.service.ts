@@ -1,18 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UpdateRoleDto } from './dto/update-role.dto';
-
+import { UpdateProfileDto } from './dto/update-profile.dto';
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
- findAll() {
-  return this.prisma.user.findMany({
-    orderBy: {
-      id: 'asc',
-    },
-  });
-}
+  findAll() {
+    return this.prisma.user.findMany({
+      orderBy: {
+        id: 'asc',
+      },
+    });
+  }
 
   async findOne(id: string) {
     const user = await this.prisma.user.findUnique({
@@ -25,6 +25,35 @@ export class UserService {
 
     return user;
   }
+
+  async updateProfile(
+    userId: string,
+    dto: UpdateProfileDto,
+  ) {
+
+    await this.findOne(userId);
+
+    return this.prisma.user.update({
+
+      where: {
+        id: userId,
+      },
+
+      data: {
+
+        displayName:
+          dto.displayName,
+
+        avatarUrl:
+          dto.avatarUrl,
+
+      },
+
+    });
+
+  }
+
+
 
   async updateRole(id: string, dto: UpdateRoleDto) {
     await this.findOne(id);

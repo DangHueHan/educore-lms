@@ -1,31 +1,3 @@
-// import { Injectable } from '@nestjs/common';
-// import { PrismaService } from '../../prisma/prisma.service';
-
-// @Injectable()
-// export class EnrollmentService {
-//   constructor(private prisma: PrismaService) {}
-
-//   findAll() {
-//     return this.prisma.enrollment.findMany({
-//       include: {
-//         user: {
-//           select: {
-//             displayName: true,
-//             email: true,
-//           },
-//         },
-//         course: {
-//           select: {
-//             title: true,
-//           },
-//         },
-//       },
-//       orderBy: {
-//         enrolledAt: 'desc',
-//       },
-//     });
-//   }
-// }
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -39,12 +11,21 @@ export class EnrollmentService {
   async findMyCourses(userId: string) {
 
     const courses = await this.prisma.course.findMany({
+
       where: {
         isDeleted: false,
       },
 
       include: {
 
+        // Khóa học miễn phí đã đăng ký
+        enrollments: {
+          where: {
+            userId,
+          },
+        },
+
+        // Khóa học trả phí đã mua
         payments: {
           where: {
             userId,
@@ -52,6 +33,7 @@ export class EnrollmentService {
           },
         },
 
+        // Tiến độ học
         progress: {
           where: {
             userId,
@@ -59,18 +41,20 @@ export class EnrollmentService {
         },
 
       },
+
     });
 
     return courses
+
       .filter((course) => {
+
+        const enrolled =
+          course.enrollments.length > 0;
 
         const bought =
           course.payments.length > 0;
 
-        return (
-          course.price === 0 ||
-          bought
-        );
+        return enrolled || bought;
 
       })
 
@@ -119,14 +103,19 @@ export class EnrollmentService {
                     payment.paidAt,
                 }
               : null,
+
         };
+
       });
+
   }
 
   findAll() {
 
     return this.prisma.enrollment.findMany({
+
       include: {
+
         user: {
           select: {
             displayName: true,
@@ -139,12 +128,15 @@ export class EnrollmentService {
             title: true,
           },
         },
+
       },
 
       orderBy: {
         enrolledAt: 'desc',
       },
+
     });
 
   }
+
 }
